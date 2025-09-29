@@ -1,0 +1,150 @@
+/* Container centrado para a secção */
+.sobre-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(20px, 3.5vw, 40px) clamp(16px, 3vw, 28px);
+}
+
+/* Lista de rows */
+.sobre-grid {
+  width: 100%;
+  display: grid;
+  gap: clamp(18px, 3.2vw, 30px); /* mais respiro em mobile */
+}
+
+/* Cada row = 2 colunas no desktop */
+.sobre-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;    /* imagem ligeiramente maior */
+  align-items: stretch;
+  gap: clamp(14px, 2.2vw, 24px);
+  /* remove min-heights rígidos (limitavam mobile); usa padding interno */
+  min-height: unset;
+}
+
+/* alterna esquerda/direita */
+.sobre-row.reverse .sobre-image { order: 2; }
+.sobre-row.reverse .sobre-text  { order: 1; }
+
+/* ===== Mobile (<=900px) — empilha, define proporção à imagem ===== */
+@media (max-width: 900px) {
+  .sobre-row {
+    grid-template-columns: 1fr;
+  }
+  /* imagem com proporção estável; evita “colunas” altíssimas */
+  .sobre-image {
+    min-height: 0;
+    aspect-ratio: 16 / 10;  /* 1.6:1 – ajusta se quiseres mais baixa: 16/9 */
+  }
+  .sobre-text-inner {
+    padding: clamp(16px, 5vw, 24px);
+  }
+  .sobre-text-inner h3 {
+    font-size: clamp(26px, 6vw, 36px);
+  }
+  .sobre-text-inner p {
+    font-size: clamp(15px, 4.2vw, 18px);
+    line-height: 1.65;
+  }
+  /* se preferires TEXTO antes da imagem em mobile */
+.sobre-row.reverse .sobre-image { order: 1; }
+.sobre-row.reverse .sobre-text  { order: 2; }
+
+}
+
+/* Pane de imagem (preenche e corta, com raio) */
+.sobre-image {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.sobre-image .absolute { will-change: opacity; }
+
+/* Pane de texto sem fundo */
+.sobre-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+}
+.sobre-text-inner {
+  max-width: 62ch;
+  padding: clamp(22px, 4.5vw, 56px);
+  text-align: left;
+}
+.sobre-text-inner h3 {
+  font-size: clamp(30px, 4.2vw, 48px);
+  line-height: 1.1;
+  margin: 0;
+  color: #fff;
+}
+.sobre-text-inner p {
+  margin-top: 12px;
+  font-size: clamp(16px, 2.1vw, 19px);
+  line-height: 1.7;
+  color: rgba(255,255,255,.9);
+}
+
+/* Entrada animada */
+.reveal { opacity: 0; transform: translateX(0); will-change: transform, opacity; }
+.reveal.from-left  { transform: translateX(-24px); }
+.reveal.from-right { transform: translateX( 24px); }
+.reveal.in { animation: sobreSlideIn 620ms cubic-bezier(.2,.65,.2,1) forwards; }
+@keyframes sobreSlideIn { to { opacity: 1; transform: translateX(0); } }
+
+/* ===== ExpandableText ===== */
+.exp-wrap { position: relative; }
+.exp-content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.exp-wrap.open .exp-content { display: block; }
+
+.exp-fade {
+  position: absolute;
+  left: 0; right: 0; bottom: 2.8rem;
+  height: 3.6rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(5,7,18,0) 0%, rgba(5,7,18,0.9) 70%, rgba(5,7,18,1) 100%);
+}
+@media (max-width: 900px) {
+  .exp-fade { bottom: 3.2rem; height: 3.8rem; } /* dá mais espaço ao botão em mobile */
+}
+
+.exp-btn {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  font-weight: 650;
+  transition: background .2s ease, border-color .2s ease, transform .1s ease;
+}
+.exp-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.5); }
+.exp-btn:active { transform: translateY(1px) scale(.99); }
+
+/* Fullscreen hero video: comportamento por breakpoint */
+#hero-video { height: 100svh; }                  /* fallback */
+@supports (height: 100dvh) {
+  #hero-video { height: 100dvh; }                /* iOS/Android modernos */
+}
+
+/* Desktop/tablet: enche e corta (cinemático) */
+.hero-video__media { object-fit: cover; }
+
+/* Mobile estreito: mostra tudo (letterbox), sem “zoom” */
+@media (max-width: 480px) {
+  .hero-video__media {
+    object-fit: contain;
+    background: #000;        /* barras pretas limpas */
+  }
+  /* sobe ligeiramente o botão para não colidir com UI do browser */
+  #hero-video .hero-cta {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 28px) !important;
+  }
+}

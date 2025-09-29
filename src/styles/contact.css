@@ -1,0 +1,194 @@
+:root{
+  --bg1:#0b1020;
+  --bg2:#070b16;
+  --card:rgba(22,28,48,.66);
+  --accent:#21c1ff;
+  --text:#ffffff;
+  --ring: 0 0 0 2px rgba(33,193,255,.45);
+}
+
+/* ===== scene ===== */
+.contact-hero{
+  min-height:100svh;
+  width:100vw;
+  overflow-x:hidden;
+  font-family: Gliker, system-ui, sans-serif;
+  color:var(--text);
+  position:relative;
+  
+}
+
+/* star specks */
+.contact-hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(2px 2px at 20% 30%, #fff 65%, transparent 66%) repeat,
+    radial-gradient(1.5px 1.5px at 70% 10%, #fff 65%, transparent 66%) repeat,
+    radial-gradient(1.5px 1.5px at 35% 80%, #fff 65%, transparent 66%) repeat;
+  background-size: 220px 220px, 260px 260px, 300px 300px;
+  opacity:.22; pointer-events:none;
+}
+
+/* subtle grid */
+.fx-grid{
+  position:absolute; inset:0;
+  --g: rgba(255,255,255,.05);
+  background:
+    linear-gradient(var(--g) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--g) 1px, transparent 1px) 0 0 / 24px 24px;
+  mask-image: radial-gradient(1200px 700px at 50% 50%, #000 60%, transparent 100%);
+  pointer-events:none;
+}
+
+/* aurora blobs */
+.fx-aurora{
+  position:absolute; inset:0; pointer-events:none;
+  filter: blur(52px);
+}
+.fx-aurora::before,
+.fx-aurora::after{
+  content:""; position:absolute;
+  width:40vw; height:40vw; border-radius:999px;
+  background: radial-gradient(circle at 30% 30%, #1bd1ff, transparent 60%);
+}
+.fx-aurora::before{ top:-10%; left:-8%; opacity:.12; }
+.fx-aurora::after { bottom:-14%; right:-10%; opacity:.10; }
+
+/* ===== layout ===== */
+.contact-wrap{
+  /* header fixo: 48px + safe area */
+  padding: calc(48px + env(safe-area-inset-top, 0px)) 16px 60px;
+  display:grid;
+  place-items:center;
+}
+
+/* ===== card ===== */
+.contact-card{
+  width:min(960px, 96vw);
+  background:var(--card);
+  border-radius:18px;
+  padding:32px 26px 26px;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  backdrop-filter: blur(8px) saturate(110%);
+  -webkit-backdrop-filter: blur(8px) saturate(110%);
+}
+
+/* dual neon frame */
+.contact-card::before,
+.contact-card::after{
+  content:""; position:absolute; inset:-1px; border-radius:20px;
+  pointer-events:none;
+}
+.contact-card::before{
+  border:1px solid rgba(33,193,255,.45);
+  box-shadow: 0 0 24px rgba(33,193,255,.25) inset, 0 0 20px rgba(33,193,255,.18);
+}
+.contact-card::after{
+  inset:-6px; border:1px solid rgba(33,193,255,.22);
+  filter: drop-shadow(0 0 18px rgba(33,193,255,.25));
+}
+
+/* sheen */
+.contact-card .sheen{
+  position:absolute; inset:0; border-radius:18px; overflow:hidden; pointer-events:none;
+}
+.contact-card .sheen::after{
+  content:""; position:absolute; inset:-40%;
+  background: conic-gradient(from 0deg,
+    transparent 0 76%, rgba(255,255,255,.10) 78%, transparent 82%);
+  animation: sweep 12s linear infinite;
+}
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+/* ===== header ===== */
+.contact-head{ text-align:center; margin-bottom:18px; }
+.contact-head h1{
+  margin:0 0 8px;
+  font-size: clamp(30px, 5.5vw, 48px);
+  letter-spacing:.04em; font-weight:800;
+}
+.contact-head p{ margin:0 auto; max-width:54ch; opacity:.9; }
+
+/* ===== form ===== */
+.contact-form{ display:grid; gap:16px; }
+.field{ display:block; }
+.field > span{
+  display:block; font-size:13px; opacity:.9; margin:0 0 6px;
+}
+.field input,
+.field textarea{
+  width:100%;
+  color:var(--text); background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.16);
+  padding:12px 12px;
+  outline:none; font-size:16px; border-radius:10px;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.field textarea{ resize:vertical; min-height:120px; }
+.field input::placeholder,
+.field textarea::placeholder{ color:rgba(255,255,255,.45); }
+
+.field input:focus,
+.field textarea:focus{
+  border-color: rgba(33,193,255,.7);
+  box-shadow: var(--ring), 0 8px 24px -12px rgba(33,193,255,.6);
+  background: rgba(255,255,255,.04);
+}
+
+.field em{
+  display:block; color:#ffd2d2; font-size:12px; margin-top:6px;
+}
+
+/* ===== actions ===== */
+.actions{
+  display:flex; align-items:center; gap:14px; margin-top:8px; flex-wrap:wrap;
+}
+.actions button{
+  position:relative;
+  isolation:isolate;
+  background: linear-gradient(180deg, #1fb8ff, #0ea5d7);
+  color:#001018;
+  border:0;
+  padding:12px 18px;
+  border-radius:10px;
+  font-weight:800; letter-spacing:.03em; cursor:pointer;
+  transition: transform .15s ease, filter .2s ease;
+}
+.actions button span{ margin-left:6px; }
+.actions button::after{
+  content:""; position:absolute; inset:-1px; border-radius:11px;
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow: 0 0 18px rgba(31,184,255,.55);
+  pointer-events:none;
+}
+.actions button:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+.actions button:active{ transform: translateY(0); }
+.actions button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+.actions .sent{ opacity:.9; }
+
+/* ===== responsive ===== */
+@media (max-width: 700px){
+  .contact-wrap{ padding: calc(48px + env(safe-area-inset-top,0px)) 12px 36px; }
+  .contact-card{ padding:24px 16px 18px; }
+  .contact-head p{ font-size: 15px; }
+  .actions{ gap:10px; }
+}
+
+/* ===== Lightbox (mantida a tua base) ===== */
+.lb-root { position: fixed; inset: 0; z-index: 999; }
+.lb-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(2px); opacity: 0; transition: opacity .22s ease; }
+.lb-backdrop.show { opacity: 1; }
+.lb-ghost { position: fixed; object-fit: cover; border-radius: 12px; box-shadow: 0 25px 100px rgba(0,0,0,.6); transition: top .28s ease, left .28s ease, width .28s ease, height .28s ease, opacity .28s ease; will-change: top, left, width, height, opacity; }
+.lb-ghost.fromThumb { opacity: .98; }
+.lb-ghost.toCenter { opacity: 1; }
+.lb-ui { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transition: opacity .18s ease .12s; }
+.lb-ui.on { pointer-events: auto; opacity: 1; }
+.lb-caption { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.7); }
+.lb-close { position: absolute; top: 14px; right: 14px; height: 36px; width: 36px; border-radius: 9999px; background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.28); display: grid; place-items: center; cursor: pointer; }
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .contact-wrap { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+}

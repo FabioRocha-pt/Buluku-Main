@@ -1,0 +1,132 @@
+:root{
+  --mtb-bg: rgba(0,0,0,.78);       /* barra desktop */
+  --mtb-border: rgba(255,255,255,.12);
+  --mtb-text: #fff;
+  --neon: #21c1ff;
+}
+
+/* ===== Barra fixa (desktop) ===== */
+.mtb-root{
+  position: fixed; inset: 0 0 auto 0; z-index: 600;
+  background: var(--mtb-bg);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--mtb-border);
+  color: var(--mtb-text);
+}
+.mtb-inner{
+  height: 100%;
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+/* Logo à esquerda */
+.mtb-logo{
+  display: inline-flex; align-items: center; gap: 8px;
+  transform: translateY(1px);
+}
+.mtb-logo img{
+  height: 40px; width: 30px;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,.2));
+}
+
+/* Nav desktop central */
+.mtb-nav-desktop{ display: none; }
+.mtb-nav-desktop ul{
+  list-style: none; margin: 0; padding: 0;
+  display: flex; justify-content: center; gap: 28px;
+}
+.mtb-nav-desktop a{
+  color: var(--mtb-text); text-decoration: none;
+  font-size: 18px; letter-spacing: .02em;
+  padding: 6px 10px; border-radius: 8px;
+  transition: opacity .18s ease, text-shadow .18s ease;
+}
+.mtb-nav-desktop a:hover{
+  opacity: .9;
+  text-shadow: 0 0 12px rgba(33,193,255,.45);
+}
+
+/* Botão mobile (à direita) */
+.mtb-burger{
+  appearance: none; background: transparent; border: 0; color: #fff;
+  height: 40px; width: 44px; border-radius: 10px;
+  display: grid; place-items: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.15) inset;
+  transition: background .18s ease, box-shadow .18s ease, transform .1s ease;
+}
+.mtb-burger:hover{
+  background: rgba(255,255,255,.08);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.25) inset,
+    0 0 16px rgba(33,193,255,.35);
+}
+.mtb-burger:active{ transform: translateY(1px); }
+
+/* ===== Drawer mobile ===== */
+.mtb-drawer{ position: fixed; inset: 0; z-index: 599; pointer-events: none; }
+.mtb-drawer.open{ pointer-events: auto; }
+
+/* fundo */
+.mtb-backdrop{
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.55);
+  opacity: 0; transition: opacity .2s ease;
+}
+.mtb-drawer.open .mtb-backdrop{ opacity: 1; }
+
+/* painel */
+.mtb-panel{
+  position: absolute; left: 12px; right: 12px; top: env(safe-area-inset-top, 0px);
+  margin-top: 64px;  /* abaixo da barra */
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(33,193,255,.12), transparent 60%),
+    rgba(10,14,28,.95);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow:
+    0 10px 40px rgba(0,0,0,.6),
+    0 0 30px rgba(33,193,255,.18) inset;
+  transform: translateY(-12px);
+  opacity: 0;
+  transition: transform .22s cubic-bezier(.22,.61,.36,1), opacity .22s ease;
+}
+.mtb-drawer.open .mtb-panel{
+  transform: translateY(0); opacity: 1;
+}
+
+/* lista vertical */
+.mtb-list{
+  list-style: none; margin: 0; padding: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mtb-list a{
+  display: block; width: 100%;
+  color: #fff; text-decoration: none;
+  font-size: 20px; padding: 14px 14px;
+  border-radius: 10px;
+  letter-spacing: .02em;
+  transition: background .18s ease, box-shadow .18s ease, transform .1s ease;
+}
+.mtb-list a:hover{
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.15) inset,
+              0 0 20px rgba(33,193,255,.25);
+}
+.mtb-list a:active{ transform: translateY(1px); }
+
+/* rodapé do drawer */
+.mtb-footer{
+  padding: 10px 16px 14px;
+  font-size: 12px; color: rgba(255,255,255,.75);
+  text-align: right;
+}
+
+/* ===== breakpoints ===== */
+@media (min-width: 768px){
+  .mtb-nav-desktop{ display: block; }
+  .mtb-burger{ display: none; }
+  .mtb-inner{ padding: 0 18px; }
+}
