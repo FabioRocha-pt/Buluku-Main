@@ -1,0 +1,47 @@
+backend:
+  name: git-gateway
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+publish_mode: simple
+
+collections:
+  - name: "settings"
+    label: "Vídeo Promo"
+    files:
+      - name: "promo"
+        label: "Promo"
+        file: "content/settings.json"
+        format: "json"
+        fields:
+          - { label: "Promo Desktop (URL)", name: "promoDesktop", widget: "string" }
+          - { label: "Promo Mobile (URL)", name: "promoMobile", widget: "string" }
+
+  - name: "agenda"
+    label: "Agenda"
+    file: "content/agenda.json"
+    format: "json"
+    fields:
+      - label: "Eventos"
+        name: "events"
+        widget: "list"
+        summary: "{{fields.title}} — {{fields.date}} — {{fields.city}}"
+        fields:
+          - { label: "Título", name: "title", widget: "string" }
+          - { label: "Tipo", name: "type", widget: "select", options: ["Try Out","Espetáculo","Oficina"] }
+          - { label: "Data", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
+          - { label: "Hora(s)", name: "time", widget: "string", required: false }
+          - { label: "Cidade", name: "city", widget: "string" }
+          - { label: "Local", name: "venue", widget: "string", required: false }
+          - { label: "Morada", name: "address", widget: "string", required: false }
+          - { label: "Link bilheteira/inscrições", name: "ticketUrl", widget: "string", required: false }
+          - label: "Estado"
+            name: "status"
+            widget: "select"
+            default: "NORMAL"
+            options:
+              - { label: "Normal", value: "NORMAL" }
+              - { label: "Em breve", value: "EM_BREVE" }
+              - { label: "Sold Out", value: "SOLD_OUT" }
+              - { label: "Encerrado", value: "ENCERRADO" }

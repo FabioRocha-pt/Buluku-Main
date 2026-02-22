@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-
 function useHasScrolled(px = 40) {
   const [scrolled, setScrolled] = React.useState(false);
   React.useEffect(() => {
@@ -186,7 +185,90 @@ function makeRng(seed: number) {
   };
 }
 
-function LogoMorph({ scrollY }: { scrollY: number }) {
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const smoothstep = (edge0: number, edge1: number, x: number) => {
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
+};
+
+function TitleMorph({ scrollY }: { scrollY: number }) {
+  const { w: vw, h: vh } = useWindowSize();
+  const isMobile = vw < 640;
+
+  // posição (igual ao que tinhas)
+  const moveT = vh ? Math.min(1, scrollY / (vh * 0.18)) : 0;
+
+  const y0 = isMobile ? vh * 0.50: vh * 0.26;
+  const y1 = isMobile ? vh * 0.52 : vh * 0.44;
+  const y = y0 + (y1 - y0) * moveT;
+
+  const W = isMobile ? Math.min(vw - 25, 620) : Math.min(vw - 80, 900);
+
+  // ✅ FADE até "à lua"
+  // começa a desaparecer ligeiramente após iniciar scroll
+  const fadeStart = vh * 0.06;  // 6vh
+  // desaparece completamente perto da lua (ajusta se quiseres)
+  const fadeEnd   = vh * 0.55;  // 55vh  (experimentar 0.50–0.70)
+  const fadeT = smoothstep(fadeStart, fadeEnd, scrollY);
+  const opacity = 1 - fadeT;
+
+  // ✅ quando já está invisível, remove do DOM (garante que “desaparece” mesmo)
+  if (opacity <= 0.01) return null;
+
+  return (
+    <div
+      className="fixed left-0 top-0 w-screen pointer-events-none"
+      style={{ zIndex: 520, opacity, transition: "opacity 60ms linear" }}
+    >
+      <div
+        className="mx-auto flex justify-center"
+        style={{
+          transform: `translateY(${y}px)`,
+          width: "100%",
+          paddingInline: isMobile ? 12 : 24,
+        }}
+      >
+        <svg
+          width={W}
+          viewBox="-80 0 1160 420"   // ✅ mais espaço à esquerda e direita
+          preserveAspectRatio="xMidYMid meet"
+          style={{
+            fontFamily: "Genty, system-ui, sans-serif",
+            display: "block",        // ✅ ajuda no Safari
+            overflow: "visible",     // ok, mas o principal é o viewBox maior
+          }}
+        >
+          <defs>
+            <path id="titleArc" d="M 60 320 C 220 60, 780 60, 940 320" />
+            <linearGradient id="yg" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stopColor="#FFE36A" />
+              <stop offset="45%" stopColor="#FBBF24" />
+              <stop offset="100%" stopColor="#FB923C" />
+            </linearGradient>
+          </defs>
+
+          <text
+            fontSize={isMobile ? 190 : 170}
+            fontWeight="400"
+            fill="url(#yg)"
+            style={{ letterSpacing: "-10px" }}
+          >
+            <textPath xlinkHref="#titleArc" startOffset={isMobile ? "16%" : "20%"} dominantBaseline="middle" textLength={isMobile ? 680 : 600} >
+              Buluku
+            </textPath>
+          </text>
+        </svg>
+      </div>
+    </div>
+  );
+}
+function LogoMorph({
+  scrollY,
+  moonRef,
+}: {
+  scrollY: number;
+  moonRef: React.RefObject<HTMLImageElement | null>;
+}) {
   const { w: vw, h: vh } = useWindowSize();
   const isMobile = vw < 640;
   const isTablet = vw >= 640 && vw < 1024;
@@ -194,81 +276,104 @@ function LogoMorph({ scrollY }: { scrollY: number }) {
   const entry = useEntryProgress(0, 800);
   const entryOpacity = 0.2 + 0.8 * entry;
 
-  // fade swap completes over 15% of first screen
-  const t = vw && vh ? Math.min(1, scrollY / (vh * 0.15)) : 0;
+  const HIDE_AT = vh * 0.10;
+  const t = vh ? Math.min(1, scrollY / HIDE_AT) : 0;
+  const hideBig = scrollY > HIDE_AT;
 
-  const SIZE_START = isMobile ? 150 : isTablet ? 200 : 240;
-  const SIZE_END   = isMobile ? 44  : 60;
+  const SIZE_START = isMobile ? 190 : isTablet ? 240 : 300;
+  const SIZE_END = isMobile ? 52 : 64;
 
-  // lift a bit above center so it doesn’t sit on the moon on phones
-  const centerLift = isMobile ? 40 : 120;
-  const xCenter = vw / 2 - SIZE_START / 2;
-  const yCenter = vh / 2 - SIZE_START / 2 - centerLift;
+  const xSeat = vw / 2 - SIZE_START / 2;
+
+  // ✅ SNAP AO TOPO DA LUA (real position)
+  const [moonTop, setMoonTop] = useState<number | null>(null);
+
+  useEffect(() => {
+    const update = () => {
+      const el = moonRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setMoonTop(r.top); // topo real no viewport
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, { passive: true } as any);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update as any);
+    };
+  }, [moonRef]);
+
+  // quanto do boneco "entra" na lua (ajusta a gosto)
+  const SEAT_FACTOR = isMobile ? 0.62 : 0.58;
+
+  // se ainda não temos moonTop (primeiro render), fallback para vh
+  const ySeat =
+    moonTop != null
+      ? moonTop - SIZE_START * SEAT_FACTOR
+      : (vh * (isMobile ? 0.80 : 0.70)) - (SIZE_START * SEAT_FACTOR);
 
   const xCorner = 16;
   const yCorner = 10;
 
   return (
-  <>
-    {/* Big centered logo — clickable while visible */}
-    <a
-      href="/"
-      aria-label="Buluku — voltar à Home"
-      className="fixed z-[420] select-none"
-      style={{
-        top: 0,
-        left: 0,
-        transform: `translate(${xCenter}px, ${yCenter}px)`,
-        // only capture clicks while it's visible
-        pointerEvents: (1 - t) > 0.05 ? "auto" : "none",
-        cursor: "pointer",
-      }}
-    >
-      <img
-        src="/images/logo.png"
-        alt="Buluku logo center"
-        style={{
-          width: `${SIZE_START}px`,
-          height: "auto",
-          opacity: entryOpacity * (1 - t),
-          transition: "opacity 300ms ease-out",
-          filter: "drop-shadow(0 0 24px rgba(255,255,255,.35))",
-          display: "block",
-        }}
-      />
-    </a>
+    <>
+      {!hideBig && (
+        <a
+          href="/"
+          aria-label="Buluku — voltar à Home"
+          className="fixed z-[420] select-none"
+          style={{
+            top: 0,
+            left: 0,
+            transform: `translate(${xSeat}px, ${ySeat}px)`,
+            pointerEvents: "auto",
+            cursor: "pointer",
+            opacity: entryOpacity * (1 - t),
+            transition: "opacity 220ms ease-out",
+          }}
+        >
+          <img
+            src="/images/logo.png"
+            alt="Buluku logo seated"
+            style={{
+              width: SIZE_START,
+              height: "auto",
+              filter: "drop-shadow(0 0 26px rgba(255,255,255,.35))",
+              display: "block",
+            }}
+          />
+        </a>
+      )}
 
-    {/* Small docked logo (top-left) — clickable when docked */}
-    <a
-      href="/"
-      aria-label="Buluku — voltar à Home"
-      className="fixed z-[421] select-none"
-      style={{
-        top: 0,
-        left: 0,
-        transform: `translate(${xCorner}px, ${yCorner}px)`,
-        // only capture clicks once it appears
-        pointerEvents: t > 0.05 ? "auto" : "none",
-        cursor: "pointer",
-      }}
-    >
-      <img
-        src="/images/logo.png"
-        alt="Buluku logo docked"
+      <a
+        href="/"
+        aria-label="Buluku — voltar à Home"
+        className="fixed z-[421] select-none"
         style={{
-          width: `${SIZE_END}px`,
-          height: "auto",
-          opacity: t,
-          transition: "opacity 300ms ease-out",
-          filter: "drop-shadow(0 0 12px rgba(255,255,255,.25))",
-          display: "block",
+          top: 0,
+          left: 0,
+          transform: `translate(${xCorner}px, ${yCorner}px)`,
+          pointerEvents: scrollY > HIDE_AT ? "auto" : "none",
+          cursor: "pointer",
+          opacity: scrollY > HIDE_AT ? 1 : 0,
+          transition: "opacity 220ms ease-out",
         }}
-      />
-    </a>
-  </>
-);
+      >
+        <img
+          src="/images/logo.png"
+          alt="Buluku logo docked"
+          style={{
+            width: SIZE_END,
+            height: "auto",
+            filter: "drop-shadow(0 0 12px rgba(255,255,255,.25))",
+            display: "block",
+          }}
+        />
+      </a>
+    </>
+  );
 }
-
 
 
 function TopCenterMenu() {
@@ -357,7 +462,116 @@ function TopCenterMenu() {
     </>
   );
 }
+function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | null> }) {
+  const { w } = useWindowSize();
+  const isMobile = w < 640;
 
+  const src = isMobile ? "/videos/promomobile.mp4" : "/videos/promo.mp4";
+  const ratio = isMobile ? "9 / 16" : "16 / 9";
+
+  const [show, setShow] = useState(false);
+
+  // ✅ Fade-in quando o "centro da lua" entra no viewport
+  useEffect(() => {
+    const moonEl = moonRef.current;
+    if (!moonEl) return;
+
+    // cria um sentinel invisível no centro da lua (posição absoluta no body)
+    const sentinel = document.createElement("div");
+    sentinel.setAttribute("data-moon-sentinel", "1");
+    sentinel.style.position = "absolute";
+    sentinel.style.width = "1px";
+    sentinel.style.height = "1px";
+    sentinel.style.pointerEvents = "none";
+    sentinel.style.opacity = "0";
+
+    document.body.appendChild(sentinel);
+
+    const placeSentinel = () => {
+      const r = moonEl.getBoundingClientRect();
+      const docY = window.scrollY || window.pageYOffset;
+
+      // centro da lua no documento
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2 + docY;
+
+      sentinel.style.left = `${cx}px`;
+      sentinel.style.top = `${cy}px`;
+    };
+
+    placeSentinel();
+    window.addEventListener("resize", placeSentinel);
+    window.addEventListener("scroll", placeSentinel, { passive: true } as any);
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setShow(true);
+      },
+      {
+        threshold: 0.15,
+        // faz trigger quando o ponto chega perto do centro do ecrã
+        rootMargin: "-40% 0px -40% 0px",
+      }
+    );
+
+    obs.observe(sentinel);
+
+    return () => {
+      obs.disconnect();
+      window.removeEventListener("resize", placeSentinel);
+      window.removeEventListener("scroll", placeSentinel as any);
+      sentinel.remove();
+    };
+  }, [moonRef]);
+
+  return (
+    <section
+      id="promo"
+      className="w-full"
+      style={{
+        fontFamily: "Gliker, system-ui, sans-serif",
+        color: "white",
+        paddingTop: "clamp(18px, 5vh, 56px)",
+        paddingBottom: "clamp(18px, 5vh, 56px)",
+      }}
+    >
+      <div className="w-full px-3 sm:px-6">
+        <div
+          className="mx-auto overflow-hidden rounded-[24px]"
+          style={{
+            maxWidth: isMobile ? "520px" : "100%",
+            background: "rgba(255,255,255,0.03)",
+            border: "2px solid rgba(255,255,255,0.70)",
+            boxShadow: "0 0 26px rgba(255,255,255,0.28)",
+            backdropFilter: "blur(8px)",
+            opacity: show ? 1 : 0,
+            transform: show ? "translateY(0)" : "translateY(18px)",
+            transition: "opacity 650ms cubic-bezier(.22,.61,.36,1), transform 650ms cubic-bezier(.22,.61,.36,1)",
+          }}
+        >
+          <div style={{ position: "relative", width: "100%", aspectRatio: ratio }}>
+            <video
+              key={src}
+              src={src}
+              autoPlay
+              muted
+              playsInline
+              loop
+              preload="auto"
+              controls={false}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function FeatureCards() {
   const cards = [
@@ -461,6 +675,7 @@ function FeatureCards() {
 
 /* --- MAIN APP --- */
 export default function App() {
+  const moonRef = useRef<HTMLImageElement | null>(null);
   const [scrollY, setScrollY] = useState(0);
   const prefersReducedMotion = usePrefersReducedMotion();
   useScroll(({ y }) => setScrollY(y), []);
@@ -495,11 +710,13 @@ export default function App() {
   const moonOpacity = 1 - progress;
   const moonFadeOpacity = progress * 0.9;
   
+  const EARTH_PUSH_RIGHT = isMobile ? vw * 0.28 : 0;
 
   return (
     <div className="min-h-[200vh] text-white bg-black">
+      <TitleMorph scrollY={scrollY} />
       <StarsSVGFixed scrollY={scrollY} />
-      <LogoMorph scrollY={scrollY} />
+      <LogoMorph scrollY={scrollY} moonRef={moonRef} />
       <TopCenterMenu />
 
       <section id="top" className="h-[100svh] overflow-x-hidden overflow-y-visible">
@@ -510,7 +727,7 @@ export default function App() {
           alt=""
           className="absolute left-1/2 top-1/2 pointer-events-none select-none"
           style={{
-            transform: `translate(-50%, -50%) translate(${entryX + orbitTx}px, ${orbitTy}px) scale(${earthScale})`,
+            transform: `translate(-50%, -50%) translate(${entryX + orbitTx + EARTH_PUSH_RIGHT}px, ${orbitTy}px) scale(${earthScale})`,
             opacity: entryOpacity,
             willChange: "transform, opacity",
             height: 'clamp(180px, 36vh, 520px)',
@@ -521,18 +738,19 @@ export default function App() {
 
         {/* MOON */}
         <img
-  src="/images/moon.webp"
-  alt="Moon surface"
-  className="absolute bottom-0 left-1/2 select-none"
-  style={{
-    transform: `translate(-50%, ${MOON_PUSH_DOWN})`,
-     width: "clamp(560px, 90vw, 1200px)",          // ou: width: 'clamp(560px, 90vw, 1200px)'
-    height: "auto",
-    opacity: moonOpacity,
-    filter: "brightness(0.95) contrast(1.05)",
-    willChange: "opacity",
-  }}
-/>
+        ref={moonRef}
+        src="/images/moon.webp"
+        alt="Moon surface"
+        className="absolute bottom-0 left-1/2 select-none"
+        style={{
+          transform: `translate(-50%, ${MOON_PUSH_DOWN})`,
+          width: "clamp(560px, 90vw, 1200px)",          // ou: width: 'clamp(560px, 90vw, 1200px)'
+          height: "auto",
+          opacity: moonOpacity,
+          filter: "brightness(0.95) contrast(1.05)",
+          willChange: "opacity",
+        }}
+      />
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -545,45 +763,12 @@ export default function App() {
           }}
         />
 
-        {/* TITLE block — position responds to screen */}
-        <div className="relative z-30 h-full">
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: isMobile ? "1vw" : "32vw",
-              top:  isMobile ? "63vh" : "57vh",
-              width: isMobile ? "81vw" : "min(60vw, 720px)",
-              maxWidth: "92vw",
-            }}
-          >
-            <svg
-              className="w-full animate-riseIn"
-              viewBox="0 0 1000 420"
-              preserveAspectRatio="xMinYMin meet"
-              style={{ fontFamily: 'Genty, system-ui, sans-serif' }}
-            >
-              <defs>
-                <path id="titleArc" d="M 60 320 C 220 60, 780 60, 940 320" />
-                <linearGradient id="yg" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0%"  stopColor="#FFE36A"/>
-                  <stop offset="45%" stopColor="#FBBF24"/>
-                  <stop offset="100%" stopColor="#FB923C"/>
-                </linearGradient>
-              </defs>
-              <text fontSize={isMobile ? 110 : 160} fontWeight="400" fill="url(#yg)" style={{ letterSpacing: "-2px" }}>
-                <textPath xlinkHref="#titleArc" startOffset="25%" dominantBaseline="middle">
-                  Buluku
-                </textPath>
-              </text>
-            </svg>
-          </div>
-        </div>
       </section>
 
       <section id="mission" className="px-4 sm:px-6 py-20 sm:py-24 md:py-32 bg-gradient-to-b from-black to-[#060a12] relative">
         {/* content later */}
       </section>
-      <FeatureCards />
+      <PromoVideo moonRef={moonRef} />
       {/* give some extra scroll room so you can actually reach the sentinel */}
 <div aria-hidden className="h-[320px]" />
 

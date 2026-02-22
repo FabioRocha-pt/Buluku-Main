@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Corpo -->
+  <path d="M16 3
+       C13 7, 12 12, 12 17
+       L12 22
+       L16 29
+       L20 22
+       L20 17
+       C20 12, 19 7, 16 3Z" fill="#ffffff" stroke="#4A4AFF" stroke-width="1.5" stroke-linejoin="round"></path>
+
+  <!-- Janela -->
+  <circle cx="16" cy="13" r="3" fill="#4A4AFF" stroke="#1B1B3A" stroke-width="1"></circle>
+
+  <!-- Asa esquerda -->
+  <path d="M12 20 L7 23 L12 25" fill="#4A4AFF"></path>
+
+  <!-- Asa direita -->
+  <path d="M20 20 L25 23 L20 25" fill="#4A4AFF"></path>
+
+  <!-- Fogo -->
+  <path d="M16 29 L13 26 L16 32 L19 26 Z" fill="#FF7E45"></path>
+</svg>
