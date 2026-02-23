@@ -1,33 +1,75 @@
-import React, { useMemo, useState, useEffect } from "react";
-
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import MenuTopBar from "../components/MenuTopBar";
-import "../styles/gallery.css";
 import StarsField from "../components/StarsField";
+import "../styles/gallery.css";
 
-/** Ajuste estes dados às suas imagens reais em /public/images/gallery */
+/* ========= Types ========= */
+type Kind = "Buluku" | "Try-out PT" | "Try-out CV";
+
 type Photo = {
   id: string;
-  src: string;      // caminho da imagem (public/)
-  title: string;    // título a mostrar
-  cats: string[];   // categorias
+  base: string;     // <-- sem extensão
+  title: string;
+  kind: Kind;
+  date?: string;
+  place?: string;
 };
+/* ========= Data (auto 13 por pasta) ========= */
+const COUNT = 13;
 
+const makeSet = (kind: Kind, folder: string) =>
+  Array.from({ length: COUNT }, (_, i) => {
+    const n = i + 1;
+    const date = kind === "Try-out PT" ? "Brevemente" : undefined;
+
+    return {
+      id: `${folder}-${n}`,
+      base: `/images/gallery/${folder}/${n}`, // <-- sem extensão
+      title: `${kind} #${n}`,
+      kind,
+      date,
+    } satisfies Photo;
+  });
+function ImgWithFallback({
+  base,
+  alt,
+  onResolvedSrc,
+}: {
+  base: string;
+  alt: string;
+  onResolvedSrc?: (src: string) => void;
+}) {
+  const exts = ["png", "JPG", "jpg"];
+  const [idx, setIdx] = React.useState(0);
+
+  const src = `${base}.${exts[idx]}`;
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onLoad={(e) => {
+        e.currentTarget.setAttribute("data-loaded", "true");
+        onResolvedSrc?.(src); // <-- devolve a src real
+      }}
+      onError={() => {
+        if (idx < exts.length - 1) setIdx(idx + 1);
+      }}
+    />
+  );
+}
 const PHOTOS: Photo[] = [
-  { id: "p1", src: "/images/gallery/01.png", title: "Buluku", cats: ["Buluku"] },
-  { id: "p2", src: "/images/gallery/02.png", title: "Buluku & Amigos", cats: ["Amigos"] },
-  { id: "p3", src: "/images/gallery/03.png", title: "Em Marte", cats: ["Viagens"] },
-  { id: "p4", src: "/images/gallery/04.png", title: "Buluku Na Lua", cats: ["Amigos"] },
-  { id: "p5", src: "/images/gallery/05.png", title: "Lua", cats: ["Viagens"] },
-  { id: "p6", src: "/images/gallery/06.png", title: "No Espaço", cats: ["Viagens"] },
-  { id: "p7", src: "/images/gallery/07.png", title: "Tempestade", cats: ["Aventuras"] },
-  { id: "p8", src: "/images/gallery/08.png", title: "Selfies com amigos", cats: ["Selfies"] },
+  ...makeSet("Buluku", "Buluku"),
+  ...makeSet("Try-out PT", "Try-out-PT"),
+  ...makeSet("Try-out CV", "Try-out-CV"),
 ];
 
-const CATS = ["Todos", "Buluku", "Aventuras", "Amigos", "Viagens", "Selfies"] as const;
-type Cat = typeof CATS[number];
+const KINDS = ["Todos", "Buluku", "Try-out PT", "Try-out CV"] as const;
+type Cat = (typeof KINDS)[number];
 
 export default function Galeria() {
-  const [cat, setCat] = useState<Cat>("Todos");
+  const [kind, setKind] = useState<Cat>("Todos");
   const [q, setQ] = useState("");
   const [active, setActive] = useState<null | {
     src: string;
@@ -36,12 +78,14 @@ export default function Galeria() {
   }>(null);
 
   const items = useMemo(() => {
-    const byCat = cat === "Todos" ? PHOTOS : PHOTOS.filter((p) => p.cats.includes(cat));
-    const byQuery = q.trim()
-      ? byCat.filter((p) => p.title.toLowerCase().includes(q.trim().toLowerCase()))
-      : byCat;
-    return byQuery;
-  }, [cat, q]);
+    const byKind = kind === "Todos" ? PHOTOS : PHOTOS.filter((p) => p.kind === kind);
+    const qq = q.trim().toLowerCase();
+    if (!qq) return byKind;
+    return byKind.filter((p) => (p.title + " " + (p.place ?? "") + " " + (p.date ?? ""))
+      .toLowerCase()
+      .includes(qq)
+    );
+  }, [kind, q]);
 
   // lock body scroll when lightbox open
   useEffect(() => {
@@ -53,77 +97,56 @@ export default function Galeria() {
     };
   }, [active]);
 
-  // ---- Grid entrance animation (alternate per row) ----
-  const gridRef = React.useRef<HTMLElement | null>(null);
-
+  // reveal cards on scroll (premium)
+  const gridRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const grid = gridRef.current;
     if (!grid) return;
 
-    // Reset any previous run
-    grid.classList.remove("run");
     const cards = Array.from(grid.querySelectorAll<HTMLElement>(".g-card"));
-    cards.forEach((el) => {
-      el.classList.remove("pre");
-      el.style.removeProperty("--delay");
-      el.removeAttribute("data-row-even");
-    });
+    cards.forEach((c) => c.classList.remove("in"));
 
-    // Group cards by "row" using their top coordinate (with tolerance)
-    const tol = 6;
-    const rows: HTMLElement[][] = [];
-    const tops: number[] = [];
-    const byTop = (n: number) => {
-      for (let i = 0; i < tops.length; i++) if (Math.abs(tops[i] - n) < tol) return i;
-      tops.push(n);
-      rows.push([]);
-      return tops.length - 1;
-    };
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const el = e.target as HTMLElement;
+          const idx = cards.indexOf(el);
+          el.style.setProperty("--delay", `${Math.max(0, idx) * 60}ms`);
+          el.classList.add("in");
+          obs.unobserve(el);
+        });
+      },
+      { threshold: 0.15 }
+    );
 
-    cards.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      const idx = byTop(r.top);
-      rows[idx].push(el);
-    });
-
-    // Mark even/odd rows and set a stagger delay within each row
-    rows.forEach((line, rowIndex) => {
-      const even = rowIndex % 2 === 0; // even rows: slide from left; odd: from right
-      line.forEach((el, i) => {
-        el.dataset.rowEven = even ? "true" : "false";
-        el.classList.add("pre");
-        el.style.setProperty("--delay", `${i * 90}ms`); // tweak stagger as you like
-      });
-    });
-
-    // Next frame, trigger the animation
-    const id = requestAnimationFrame(() => grid.classList.add("run"));
-    return () => cancelAnimationFrame(id);
+    cards.forEach((c) => obs.observe(c));
+    return () => obs.disconnect();
   }, [items]);
 
   return (
-    <main className="galeria min-h-screen w-screen bg-black text-white overflow-x-hidden" style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white" }}>
+    <main className="galeria" style={{ fontFamily: "Gliker, system-ui, sans-serif" }}>
       <StarsField speeds={{ far: 0.12, mid: 0.22, near: 0.34 }} />
-      <MenuTopBar
-      
-        items={[
-          { label: "Sobre", href: "/sobre" },
-          { label: "Shows", href: "/shows" },
-          { label: "Galeria & Press", href: "/galeria" },
-          { label: "Contactos", href: "/contactos" },
-        ]}
-      />
+
+      <MenuTopBar />
+
+      <header className="g-hero">
+        <div className="g-heroInner">
+          <div className="g-kicker">Buluku — Galeria</div>
+          <h1 className="g-title">Galeria & Press</h1>
+          <p className="g-subtitle">
+            Conteúdos organizados por <strong>Buluku</strong>, <strong>Try-out PT</strong> e <strong>Try-out CV</strong>.
+          </p>
+        </div>
+      </header>
 
       <div className="g-container">
-        <h1 className="g-brand">BULUKU — GALERIA</h1>
-
-        {/* filtros + busca */}
         <div className="g-toolbar">
-          <ul className="g-cats">
-            {CATS.map((c) => (
-              <li key={c}>
-                <button className={c === cat ? "active" : ""} onClick={() => setCat(c)}>
-                  {c === "Todos" ? "All" : c[0].toUpperCase() + c.slice(1)}
+          <ul className="g-cats" role="tablist" aria-label="Filtros da galeria">
+            {KINDS.map((k) => (
+              <li key={k}>
+                <button type="button" className={k === kind ? "active" : ""} onClick={() => setKind(k)}>
+                  {k}
                 </button>
               </li>
             ))}
@@ -140,46 +163,59 @@ export default function Galeria() {
           </div>
         </div>
 
-        {/* grid */}
         <section ref={gridRef} className="g-grid" aria-live="polite">
-          {items.map((p) => (
-            <figure key={p.id} className="g-card">
-              <button
-                className="g-imgLink"
-                aria-label={`Ver ${p.title} ampliada`}
-                onClick={(ev) => {
-                  const img = (ev.currentTarget as HTMLElement).querySelector("img");
-                  if (!img) return;
-                  const r = img.getBoundingClientRect();
-                  setActive({
-                    src: p.src,
-                    title: p.title,
-                    rect: { top: r.top, left: r.left, width: r.width, height: r.height },
-                  });
-                }}
-              >
-                <div className="g-thumb">
-                  <img
-                    src={p.src}
-                    alt={p.title}
-                    loading="lazy"
-                    onLoad={(e) => e.currentTarget.setAttribute("data-loaded", "true")}
-                  />
-                </div>
+          {items.map((p, i) => {
+  let resolvedSrc = "";
 
-                <figcaption className="g-overlay">
-                  <span className="g-title">{p.title}</span>
-                  <span className="g-sub">ver</span>
-                </figcaption>
-              </button>
-            </figure>
-          ))}
+  return (
+    <figure key={p.id} className="g-card" style={{ ["--i" as any]: i }}>
+      <button
+        className="g-imgLink"
+        aria-label={`Ver ${p.title} ampliada`}
+        onClick={(ev) => {
+          const img = (ev.currentTarget as HTMLElement).querySelector("img");
+          if (!img) return;
+
+          const r = img.getBoundingClientRect();
+          const srcForLightbox = resolvedSrc || img.getAttribute("src") || "";
+
+          setActive({
+            src: srcForLightbox,
+            title: p.title,
+            rect: { top: r.top, left: r.left, width: r.width, height: r.height },
+          });
+        }}
+      >
+        <div className="g-thumb">
+          <div className="g-skeleton" aria-hidden />
+          <ImgWithFallback
+            base={p.base}
+            alt={p.title}
+            onResolvedSrc={(s) => (resolvedSrc = s)}
+          />
+        </div>
+
+        {/* overlay igual */}
+        <figcaption className="g-overlay">
+          <div className="g-ovTop">
+            <span className="g-pill">{p.kind}</span>
+            {p.date ? <span className="g-date">{p.date}</span> : <span />}
+          </div>
+
+          <div className="g-ovBottom">
+            <span className="g-title2">{p.title}</span>
+            {p.place ? <span className="g-place">{p.place}</span> : null}
+          </div>
+        </figcaption>
+      </button>
+    </figure>
+  );
+})}
         </section>
 
         {items.length === 0 && <p className="g-empty">Sem resultados para “{q}”.</p>}
       </div>
 
-      {/* Lightbox modal */}
       <Lightbox active={active} onClose={() => setActive(null)} />
     </main>
   );
@@ -196,12 +232,9 @@ function Lightbox({
   };
   onClose: () => void;
 }) {
-  // Hooks sempre no topo
   const [imgSize, setImgSize] = React.useState<{ w: number; h: number } | null>(null);
   const [toCenter, setToCenter] = React.useState(false);
-  const ghostRef = React.useRef<HTMLImageElement | null>(null);
 
-  // ESC fecha
   React.useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
@@ -211,17 +244,14 @@ function Lightbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [active]);
 
-  // Carrega a imagem para obter tamanho natural
   React.useEffect(() => {
     if (!active) return;
     const im = new Image();
     im.src = active.src;
-    const done = () =>
-      setImgSize({ w: im.naturalWidth || 1600, h: im.naturalHeight || 900 });
+    const done = () => setImgSize({ w: im.naturalWidth || 1600, h: im.naturalHeight || 900 });
     (im.decode?.() ?? Promise.resolve()).then(done).catch(done);
   }, [active]);
 
-  // Rect alvo (centrado / contain)
   const target = React.useMemo(() => {
     if (!active || !imgSize) return null;
     const vw = window.innerWidth;
@@ -242,14 +272,12 @@ function Lightbox({
     return { top, left, width: tw, height: th };
   }, [active, imgSize]);
 
-  // Dispara a animação para o centro
   React.useEffect(() => {
     if (!active || !target) return;
     const id = requestAnimationFrame(() => setToCenter(true));
     return () => cancelAnimationFrame(id);
   }, [active, target]);
 
-  // Inativo: não renderiza nada (hooks já foram avaliados em segurança)
   if (!active) return null;
 
   const thumb = active.rect;
@@ -259,7 +287,6 @@ function Lightbox({
       : { top: thumb.top, left: thumb.left, width: thumb.width, height: thumb.height };
 
   function onGhostTransitionEnd() {
-    // Se estamos a animar de volta (toCenter=false), desmonta
     if (!toCenter) onClose();
   }
 
@@ -275,7 +302,6 @@ function Lightbox({
     >
       <div className={`lb-backdrop ${toCenter ? "show" : ""}`} />
       <img
-        ref={ghostRef}
         src={active.src}
         alt={active.title}
         className={`lb-ghost ${toCenter ? "toCenter" : "fromThumb"}`}
@@ -284,18 +310,10 @@ function Lightbox({
       />
       <div className={`lb-ui ${toCenter ? "on" : ""}`} onClick={(e) => e.stopPropagation()}>
         <div className="lb-caption">{active.title}</div>
-        <button
-          className="lb-close"
-          aria-label="Fechar"
-          onClick={(e) => {
-            e.stopPropagation();
-            setToCenter(false);
-          }}
-        >
+        <button className="lb-close" aria-label="Fechar" onClick={() => setToCenter(false)}>
           ✕
         </button>
       </div>
     </div>
   );
 }
-

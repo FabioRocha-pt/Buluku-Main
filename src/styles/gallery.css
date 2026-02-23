@@ -1,409 +1,345 @@
-/* Look minimalista inspirado no exemplo: fundo branco, tipografia fina,
-   grid de cartões quadrados, overlay no hover */
+/* =========================
+   GALERIA (Premium / Dark / Glass)
+========================= */
 
-/* Reset de base só aqui */
-.galeria {
-  --text:#eaeaea;
-  --muted:rgb(210, 210, 210)
-  --line:#eaeaea;
-  --accent:#ffffff;
-  
-  color:var(--text);
-  min-height:100svh;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+.galeria * {
+  color: #fff !important;
+}
+.galeria{
+  --text: #ffffff;
+  --muted: rgba(255,255,255,.78);
+  --muted2: rgba(255,255,255,.60);
+  --line: rgba(255,255,255,.14);
+  --glass: rgba(255,255,255,.04);
+  --glass2: rgba(0,0,0,.35);
+  --shadow: 0 18px 60px rgba(0,0,0,.35);
+  --shadow2: 0 26px 80px rgba(0,0,0,.45);
+  --radius: 18px;
+
+  color: var(--text);
+  min-height: 100svh;
+  background: transparent;
+  overflow-x: hidden;
 }
 
-/* container central */
-.g-container{
-  max-width: 1200px;
+/* hero */
+.g-hero{
+  padding: calc(48px + env(safe-area-inset-top, 0px) + 18px) 16px 12px;
+}
+.g-heroInner{
+  width: min(1100px, 92vw);
   margin: 0 auto;
-  padding: 96px 20px 60px; /* espaço por causa do menu fixo */
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(900px 420px at 50% 0%, rgba(33,193,255,.10), transparent 60%),
+    rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 26px rgba(255,255,255,0.12);
+  padding: clamp(16px, 2.6vw, 26px);
+}
+.g-kicker{
+  opacity: .72;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.g-title{
+  margin: 10px 0 8px;
+  font-size: clamp(26px, 4.3vw, 52px);
+  line-height: 1.05;
+}
+.g-subtitle{
+  margin: 0;
+  opacity: .92;
+  max-width: 70ch;
+  line-height: 1.55;
+  color: var(--muted);
 }
 
-/* “logo”/título (subtil como no exemplo) */
-.g-brand{
-  text-align:center;
-  font-weight:600;
-  letter-spacing:.28em;
-  font-size:14px;
-  margin: 14px 0 22px;
+/* container */
+.g-container{
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+  padding: 14px 0 70px;
 }
 
-/* barra de filtros + pesquisa */
+/* toolbar */
 .g-toolbar{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap: 16px;
-  border-top:1px solid var(--line);
-  padding-top:18px;
-  margin-bottom: 22px;
-  flex-wrap:wrap;
+  gap: 14px;
+  margin: 14px 0 22px;
+  flex-wrap: wrap;
 }
 
-/* filtros */
+/* pills */
 .g-cats{
   display:flex;
-  align-items:center;
-  gap: 18px;
-  list-style:none;
-  padding:0;
-  margin:0;
   flex-wrap:wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .g-cats button{
-  background:transparent;
-  border:none;
-  padding:6px 0;
-  color:var(--muted);
-  cursor:pointer;
-  font-size:14px;
-  letter-spacing:.04em;
-  transition: color .15s ease;
+  appearance:none;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: .88;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
 }
-.g-cats button:hover{ color:var(--text); }
+.g-cats button:hover{
+  opacity: 1;
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.22);
+}
 .g-cats button.active{
-  color:var(--accent);
-  position:relative;
-}
-.g-cats button.active::after{
-  content:"";
-  position:absolute;
-  left:0; right:0; bottom:-6px;
-  height:2px; background:var(--accent);
+  opacity: 1;
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.28);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset;
 }
 
-/* busca */
+/* search */
 .g-search input{
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:8px 12px;
-  min-width: 200px;
-  outline:none;
-  transition:border-color .15s ease, box-shadow .15s ease;
+  width: min(320px, 90vw);
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 16px;
+  outline: none;
+  transition: border-color .18s ease, background .18s ease;
 }
+.g-search input::placeholder{ color: rgba(255,255,255,.75); }
 .g-search input:focus{
-  border-color:#bbb;
-  box-shadow:0 0 0 3px rgba(0,0,0,.05);
+  border-color: rgba(255,255,255,.28);
+  background: rgba(255,255,255,.12);
 }
 
-/* grid (colunas fixas que colapsam responsivamente) */
+/* grid */
 .g-grid{
   display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 26px;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 22px;
 }
-@media (max-width: 1100px){
-  .g-grid{ grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1200px){ .g-grid{ grid-template-columns: repeat(3, minmax(220px, 1fr)); } }
+@media (max-width: 820px){ .g-grid{ grid-template-columns: repeat(2, minmax(180px, 1fr)); } }
+@media (max-width: 520px){ .g-grid{ grid-template-columns: 1fr; } }
+
+/* card */
+.g-card{
+  margin: 0;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--delay, 0ms);
 }
-@media (max-width: 760px){
-  .g-grid{ grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 460px){
-  .g-grid{ grid-template-columns: 1fr; }
+.g-card.in{
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* cartão */
-.g-card{
-  margin:0;
-  position:relative;
-  overflow:hidden;
-  background:#f6f6f6;
-  border:1px solid var(--line);
-}
 .g-imgLink{
   display:block;
-  position:relative;
-  aspect-ratio: 1 / 1;   /* quadrado; troque se quiser retângulo */
-  overflow:hidden;
-}
-.g-card img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-  transition: transform .35s ease;
-}
-
-/* overlay no hover */
-.g-overlay{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  background: rgba(0,0,0,.36);
-  opacity:0;
-  transition: opacity .25s ease;
-  text-align:center;
-  padding:12px;
-}
-.g-title{
-  font-size:14px;
-  letter-spacing:.06em;
-}
-.g-sub{
-  margin-top:6px;
-  font-size:12px;
-  opacity:.9;
-}
-.g-imgLink:hover img{ transform: scale(1.04); }
-.g-imgLink:hover .g-overlay{ opacity:1; }
-
-/* vazio */
-.g-empty{
-  text-align:center;
-  color:var(--muted);
-  margin: 26px 0 10px;
-}
-
-/* ---------- TOP TOOLBAR (keep your existing) ---------- */
-.g-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:22px 0 26px;position:relative;z-index:20}
-.g-cats{display:flex;flex-wrap:wrap;gap:14px;margin:0;padding:0;list-style:none}
-.g-cats button{appearance:none;background:transparent;border:0;color:#fff;font:inherit;font-weight:700;letter-spacing:.2px;padding:.38rem .8rem;border-radius:999px;cursor:pointer;opacity:.86;transition:opacity .2s,background-color .2s}
-.g-cats button:hover{opacity:1;background:rgba(255,255,255,.08)}
-.g-cats button.active{opacity:1;background:rgba(255,255,255,.16);box-shadow:0 0 0 1px rgba(255,255,255,.22) inset}
-
-/* little underline for the active cat (white line under the first item in your screenshot) */
-.g-cats button.active::after{
-  content:""; display:block; height:2px; background:#fff; margin:6px auto -4px; width:28px; border-radius:2px;
-}
-
-/* ---------- GRID CARDS ---------- */
-.g-grid{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:28px}
-@media (max-width:1200px){.g-grid{grid-template-columns:repeat(3,minmax(220px,1fr))}}
-@media (max-width:800px){.g-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}}
-@media (max-width:520px){.g-grid{grid-template-columns:1fr}}
-
-.g-card{position:relative;overflow:hidden;border-radius:10px;background:rgba(255,255,255,.04);outline:1px solid rgba(255,255,255,.12)}
-.g-imgLink{display:block;position:relative;aspect-ratio:1/1;overflow:hidden}
-
-/* FIX “top white/grey” while loading images */
-.g-imgLink img{
-  display:block;width:100%;height:100%;
-  object-fit:cover;object-position:center;
-  background:transparent; /* remove pale default bg */
-}
-
-/* simple skeleton while loading (optional) */
-.g-imgLink::before{
-  content:"";position:absolute;inset:0;background:
-    linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.12),rgba(255,255,255,.05));
-  animation:shimmer 1.2s linear infinite;opacity:.35;
-}
-.g-imgLink img.loaded + .g-overlay,
-.g-imgLink img.loaded ~ .skeleton-kill{ display:none; }
-@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-
-/* hover overlay */
-.g-overlay{
-  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:linear-gradient(to bottom,rgba(0,0,0,.0),rgba(0,0,0,.35));
-  color:#fff;opacity:0;transition:opacity .25s;
-}
-.g-imgLink:hover .g-overlay{opacity:1}
-.g-title{font-weight:700}
-.g-sub{opacity:.9;margin-top:.25rem}
-
-/* ---------- LIGHTBOX (zoom to front) ---------- */
-.lb-root{
-  position:fixed;inset:0;z-index:9999;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.55);backdrop-filter:blur(2px);
-  animation:fadeIn .22s ease-out both;
-}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.lb-closing { pointer-events: none; }
-@keyframes fadeOut{from{opacity:1}to{opacity:0}}
-
-.lb-figure{
-  position:relative;max-width:min(92vw,1400px);max-height:86vh;
-  animation:zoomIn .26s cubic-bezier(.2,.8,.2,1) both;
-  transform-origin:center center;
-}
-.lb-closing .lb-figure{animation:zoomOut .18s ease-in both}
-@keyframes zoomIn{from{transform:scale(.88);opacity:.0}to{transform:scale(1);opacity:1}}
-@keyframes zoomOut{from{transform:scale(1);opacity:1}to{transform:scale(.88);opacity:.0}}
-
-.lb-figure img{
-  display:block;width:auto;max-width:100%;height:auto;max-height:86vh;object-fit:contain;border-radius:12px;
-  box-shadow:0 20px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.15) inset;
-}
-
-/* Close (X) at top-right of the image */
-.lb-close{
-  position:absolute;right:10px;top:10px;display:inline-flex;align-items:center;justify-content:center;
-  height:38px;width:38px;border-radius:999px;border:0;background:rgba(0,0,0,.55);color:#fff;
-  box-shadow:0 0 0 1px rgba(255,255,255,.25) inset;
-  cursor:pointer;transition:transform .12s ease, background .2s ease, box-shadow .2s;
-}
-.lb-close:hover{transform:scale(1.06);background:rgba(0,0,0,.65);box-shadow:0 0 0 1px rgba(255,255,255,.45) inset}
-
-/* prevent background scroll while lightbox is open */
-html.lb-no-scroll, body.lb-no-scroll{overflow:hidden}
-
-/* ---------- Aesthetic card look ---------- */
-
-.galeria {
-  --card-bg: rgba(255,255,255,0.04);
-  --card-ring: rgba(255,255,255,0.12);
-  --card-ring-hover: rgba(255,255,255,0.28);
-  --card-shadow: 0 18px 60px rgba(0,0,0,.35);
-  --card-shadow-hover: 0 26px 80px rgba(0,0,0,.45);
-  --radius: 18px;
-}
-
-/* zera qualquer fundo branco que tenha ficado */
-.g-card,
-.g-card * {
-  background-color: transparent;
-}
-
-/* botão/carta “glassy” */
-.g-imgLink {
-  display: block;
   width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* thumbnail shell */
+.g-thumb{
+  position: relative;
   border-radius: var(--radius);
-  outline: 1px solid var(--card-ring);
-  background: var(--card-bg);
-  box-shadow: var(--card-shadow);
+  outline: 1px solid rgba(255,255,255,.12);
+  background: var(--glass);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  backdrop-filter: saturate(120%) blur(2px);
+  aspect-ratio: 4 / 3;
   transition: transform .18s ease, outline-color .18s ease, box-shadow .18s ease;
 }
-
-.g-imgLink:hover {
+.g-imgLink:hover .g-thumb{
   transform: translateY(-2px);
-  outline-color: var(--card-ring-hover);
-  box-shadow: var(--card-shadow-hover);
+  outline-color: rgba(255,255,255,.28);
+  box-shadow: var(--shadow2);
 }
 
-/* thumbnail com aspect-ratio e fallback de fundo */
-.g-thumb {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  background:
-    radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,.06) 0%, rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
-}
-
-/* imagem preenche o thumb */
-.g-thumb img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: inherit;
-}
-
-/* skeleton shimmer enquanto a imagem não carrega */
-.g-thumb::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(90deg,
-      rgba(255,255,255,0.04) 0%,
-      rgba(255,255,255,0.10) 50%,
-      rgba(255,255,255,0.04) 100%);
+/* skeleton */
+.g-skeleton{
+  position:absolute;
+  inset:0;
+  background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.12), rgba(255,255,255,.04));
   transform: translateX(-100%);
   animation: g-shimmer 1.15s ease-in-out infinite;
-  opacity: .7;
-  pointer-events: none;
+  opacity: .55;
 }
+@keyframes g-shimmer{ to { transform: translateX(100%); } }
 
-/* quando a imagem carrega, some o skeleton */
-.g-thumb:has(img[data-loaded="true"])::after {
+/* image */
+.g-thumb img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity .25s ease, transform .35s ease;
+}
+.g-thumb img[data-loaded="true"]{
+  opacity: 1;
+  transform: scale(1);
+}
+.g-thumb img[data-loaded="true"] ~ .g-skeleton{
   opacity: 0;
   animation: none;
 }
 
-/* overlay subtil mantém-se igual (se quiser, dá um leve blur) */
-.g-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
+/* overlay */
+.g-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction: column;
   justify-content: space-between;
-  padding: 10px 12px;
-  background: linear-gradient(to top, rgba(0,0,0,.28), rgba(0,0,0,0));
+  padding: 12px;
+  background: linear-gradient(to top, rgba(0,0,0,.42), rgba(0,0,0,0));
+  opacity: 0;
+  transition: opacity .18s ease;
+  border-radius: var(--radius);
+}
+.g-imgLink:hover .g-overlay{ opacity: 1; }
+
+@media (hover: none){
+  /* no mobile não há hover: overlay sempre presente e sem lift */
+  .g-overlay{ opacity: 1; background: linear-gradient(to top, rgba(0,0,0,.48), rgba(0,0,0,0)); }
+  .g-imgLink:hover .g-thumb{ transform:none; }
+}
+
+.g-ovTop{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.g-pill{
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.28);
+  backdrop-filter: blur(8px);
+}
+.g-date{
+  font-size: 12px;
+  opacity: .9;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+}
+
+.g-ovBottom{
+  display:flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.g-title2{
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.g-place{
+  font-size: 12px;
+  color: rgba(255,255,255,.82);
+}
+
+/* empty */
+.g-empty{
+  text-align:center;
+  color: var(--muted2);
+  margin: 18px 0 10px;
+}
+
+/* =========================
+   LIGHTBOX (zoom from thumb)
+========================= */
+.lb-root{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.lb-backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+.lb-backdrop.show{ opacity: 1; }
+
+.lb-ghost{
+  position: fixed;
+  border-radius: 18px;
+  object-fit: contain;
+  box-shadow: 0 28px 90px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.14) inset;
+  will-change: top,left,width,height,transform,opacity;
+  transition: top .52s cubic-bezier(.22,.61,.36,1),
+              left .52s cubic-bezier(.22,.61,.36,1),
+              width .52s cubic-bezier(.22,.61,.36,1),
+              height .52s cubic-bezier(.22,.61,.36,1),
+              border-radius .52s cubic-bezier(.22,.61,.36,1);
+}
+
+.lb-ui{
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  transform: translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap: 10px;
   opacity: 0;
   transition: opacity .18s ease;
 }
-.g-imgLink:hover .g-overlay { opacity: 1; }
+.lb-ui.on{ opacity: 1; }
 
-@keyframes g-shimmer {
-  100% { transform: translateX(100%); }
-}
-
-/* filtros “pills” (se quiser dar um glowzinho) */
-.g-cats button {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid var(--card-ring);
-  color: #fff;
-  padding: 8px 14px;
+.lb-caption{
+  padding: 10px 14px;
   border-radius: 999px;
-  transition: background .18s, border-color .18s, transform .18s;
-}
-.g-cats button:hover {
-  background: rgba(255,255,255,0.14);
-  border-color: var(--card-ring-hover);
-  transform: translateY(-1px);
-}
-.g-cats button.active {
-  background: #ffffff;
-  color: #000;
-  border-color: transparent;
-}
-
-/* campo de pesquisa em modo vidro */
-.g-search input {
-  background: rgba(255,255,255,0.10);
-  border: 1px solid var(--card-ring);
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.45);
   color: #fff;
+  backdrop-filter: blur(10px);
+  max-width: min(70vw, 720px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-close{
+  height: 40px;
+  width: 40px;
   border-radius: 999px;
-  padding: 10px 16px;
-  outline: none;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
 }
-.g-search input::placeholder { color: rgba(255,255,255,.75); }
-.g-search input:focus {
-  border-color: var(--card-ring-hover);
-  background: rgba(255,255,255,0.14);
-}
-
-/* ---------- Grid entrance animation (alternating rows) ---------- */
-
-.g-card.pre {
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-/* linhas pares: entram da esquerda; ímpares: da direita */
-.g-card.pre[data-row-even="true"]  { transform: translateX(-28px); }
-.g-card.pre[data-row-even="false"] { transform: translateX( 28px); }
-
-/* quando a grid ganha .run, animamos cada card */
-.g-grid.run .g-card.pre {
-  animation: g-slide-in .55s cubic-bezier(.22,.61,.36,1) both;
-  animation-delay: var(--delay, 0ms);
-}
-
-/* keyframes: normalizamos direção via transform inicial */
-@keyframes g-slide-in {
-  from { opacity: 0; transform: translateX(var(--startX, 0)); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-/* truque: como definimos o deslocamento via classe, basta limpar o transform no final */
-.g-grid.run .g-card.pre[data-row-even="true"]  { --startX: -28px; }
-.g-grid.run .g-card.pre[data-row-even="false"] { --startX:  28px; }
-
-/* opcional: leve elevação depois de entrar */
-.g-grid.run .g-card .g-imgLink {
-  transition: transform .18s ease, outline-color .18s ease, box-shadow .18s ease;
-}
+.lb-close:hover{ background: rgba(0,0,0,.65); }

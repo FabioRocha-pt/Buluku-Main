@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "about": "About",
+    "shows": "Shows",
+    "gallery": "Gallery & Press",
+    "contacts": "Contacts"
+  },
+  "lang": {
+    "switchToEnglish": "Switch to English",
+    "switchToPortuguese": "Switch to Portuguese"
+  },
+  "common": {
+    "close": "Close",
+    "search": "Search…",
+    "seeAll": "See all →",
+    "back": "Back",
+    "sound": "Sound",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
+  },
+  "status": {
+    "closed": "Closed",
+    "soon": "Soon",
+    "schools": "Schools",
+    "comingSoon": "Coming soon"
+  },
+  "home": {
+    "agendaTitle": "Schedule",
+    "lead": "BULUKU, a show created and performed by Djam Neguin. Produced by ACCCA — Companhia Clara Andermatt."
+  },
+  "gallery": {
+    "kicker": "Buluku — Gallery",
+    "title": "Gallery & Press",
+    "subtitle": "Content organized by Buluku, Try-out PT and Try-out CV.",
+    "tabs": {
+      "all": "All",
+      "buluku": "Buluku",
+      "pt": "Try-out PT",
+      "cv": "Try-out CV"
+    },
+    "empty": "No results for “{{q}}”."
+  },
+  "footer": {
+    "production": "Production",
+    "supports": "Support",
+    "partners": "Media partners",
+    "funded": "ACCCA is funded by\nPortuguese Republic — Culture | Directorate-General for the Arts"
+  }
+}

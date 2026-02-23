@@ -130,3 +130,13 @@
   .mtb-burger{ display: none; }
   .mtb-inner{ padding: 0 18px; }
 }
+
+.mtb-actions{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+.mtb-lang{
+  height:38px; min-width:44px; padding:0 12px;
+  border-radius:999px; border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06); color:#fff;
+  cursor:pointer; font-weight:800; letter-spacing:.04em;
+}
+.mtb-panelTop{ display:flex; justify-content:flex-end; padding:10px 14px 0; }
+.mtb-lang--panel{ background:rgba(0,0,0,.35); border-color:rgba(255,255,255,.22); }

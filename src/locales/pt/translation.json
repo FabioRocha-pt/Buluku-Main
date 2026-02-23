@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "about": "Sobre",
+    "shows": "Shows",
+    "gallery": "Galeria & Press",
+    "contacts": "Contactos"
+  },
+  "lang": {
+    "switchToEnglish": "Mudar para Inglês",
+    "switchToPortuguese": "Mudar para Português"
+  },
+  "common": {
+    "close": "Fechar",
+    "search": "Pesquisar…",
+    "seeAll": "Ver tudo →",
+    "back": "Voltar",
+    "sound": "Som",
+    "soundOn": "Som ligado",
+    "soundOff": "Som desligado"
+  },
+  "status": {
+    "closed": "Encerrado",
+    "soon": "Em breve",
+    "schools": "Escolas",
+    "comingSoon": "Brevemente"
+  },
+  "home": {
+    "agendaTitle": "Agenda",
+    "lead": "BULUKU, um espetáculo criado e interpretado por Djam Neguin. Produção ACCCA — Companhia Clara Andermatt."
+  },
+  "gallery": {
+    "kicker": "Buluku — Galeria",
+    "title": "Galeria & Press",
+    "subtitle": "Conteúdos organizados por Buluku, Try-out PT e Try-out CV.",
+    "tabs": {
+      "all": "Todos",
+      "buluku": "Buluku",
+      "pt": "Try-out PT",
+      "cv": "Try-out CV"
+    },
+    "empty": "Sem resultados para “{{q}}”."
+  },
+  "footer": {
+    "production": "Produção",
+    "supports": "Apoios",
+    "partners": "Parceria de comunicação",
+    "funded": "A ACCCA é uma estrutura financiada por\nRepública Portuguesa – Cultura | Direção-Geral das Artes"
+  }
+}

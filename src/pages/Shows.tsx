@@ -25,13 +25,101 @@ const Check = (p: any) => (
     <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+type AgendaStatus = "NORMAL" | "EM_BREVE" | "SOLD_OUT" | "ENCERRADO" | "ESCOLAS";
 
-const agenda = [
+type AgendaItem = {
+  title: string;
+  badge?: string;
+  dateLabel: string;   // "13 de fevereiro"
+  time: string;        // "10h30" | "10h30 e 14h30"
+  city: string;
+  venue: string;
+  address?: string;
+  status: AgendaStatus;
+  ticketUrl?: string;
+  note?: string;
+};
+
+const statusLabel: Record<AgendaStatus, string> = {
+  NORMAL: "Bilhetes",
+  EM_BREVE: "Em breve",
+  SOLD_OUT: "Sold Out",
+  ENCERRADO: "Encerrado",
+  ESCOLAS: "Escolas",
+};
+const agenda: AgendaItem[] = [
   {
-    title: "Try Out – Apresentação performática do projeto",
-    date: "27 de Outubro, 19h00",
-    place: "R. Luz Soriano nº67, 1200-246 Lisboa",
+    title: "Try Out",
+    badge: "Try Out",
+    dateLabel: "13 de fevereiro",
+    time: "10h30",
+    city: "Praia, Cabo Verde",
+    venue: "Centro Cultural Português na Praia",
+    status: "ENCERRADO",
+  },
+  {
+    title: "Try Out",
+    badge: "Try Out",
+    dateLabel: "6 de março",
+    time: "19h00",
+    city: "Lisboa",
+    venue: "Estúdio ACCCA",
+    status: "EM_BREVE",
+    note: "Bilhetes em breve.",
+  },
+  {
+    title: "Espetáculo | Estreia",
     badge: "Estreia",
+    dateLabel: "21 e 22 de março",
+    time: "16h00",
+    city: "Lisboa",
+    venue: "Teatro do Bairro",
+    address: "R. Luz Soriano, 63 1200-246 Lisboa",
+    status: "EM_BREVE",
+    note: "Bilhetes em breve.",
+  },
+  {
+    title: "Espetáculo",
+    badge: "Público",
+    dateLabel: "28 de março",
+    time: "16h00",
+    city: "Águeda",
+    venue: "Local a definir",
+    status: "EM_BREVE",
+    note: "Bilhetes em breve.",
+  },
+  {
+    title: "Espetáculo",
+    badge: "Escolas",
+    dateLabel: "5 de junho",
+    time: "10h30 e 14h30",
+    city: "Braga",
+    venue: "Theatro Circo",
+    address: "Av. da Liberdade 697, 4710-251 Braga",
+    status: "ESCOLAS",
+    note: "Sessões para escolas (sem bilheteira online).",
+  },
+  {
+    title: "Espetáculo",
+    badge: "Público",
+    dateLabel: "6 de junho",
+    time: "11h30",
+    city: "Braga",
+    venue: "Theatro Circo",
+    address: "Av. da Liberdade 697, 4710-251 Braga",
+    status: "EM_BREVE",
+    note: "Bilhetes em breve.",
+  },
+  {
+    title: "Oficina — O Meu Eu Astronauta e o Metaverso",
+    badge: "Oficina",
+    dateLabel: "6 de junho",
+    time: "15h00",
+    city: "Braga",
+    venue: "Theatro Circo",
+    address: "Av. da Liberdade 697, 4710-251 Braga",
+    status: "EM_BREVE",
+    note: "Inscrições em breve.",
   },
 ];
 
@@ -40,12 +128,7 @@ export default function ShowsPage() {
     <main className="shows-root" style={{ fontFamily: "Gliker, system-ui, sans-serif" }}>
       <StarsField speeds={{ far: 0.10, mid: 0.20, near: 0.32 }} />
 
-      <MenuTopBar items={[
-        { label: "Sobre", href: "/sobre" },
-        { label: "Shows", href: "/shows" },
-        { label: "Galeria & Press", href: "/galeria" },
-        { label: "Contactos", href: "/contactos" },
-      ]} />
+      <MenuTopBar />
       <div className="h-spacer" aria-hidden />
 
       <header className="shows-hero">
@@ -71,16 +154,16 @@ export default function ShowsPage() {
 
             <div className="sinopse">
               <p>
-                <strong>Sinopse (longa):</strong><br/>
-                Buluku é um afronauta brincalhão e curioso, que viaja pelo espaço-tempo para partilhar aventuras sobre a criação do Universo.
-                Com humor e leveza, transforma conhecimentos ancestrais em experiências contemporâneas, acessíveis e divertidas.
-                Ao lado dos seus inseparáveis androids Kandjila e Zuri, ele visita planetas desconhecidos e celebra o poder da imaginação,
-                da diversidade e da convivência entre mundos.
+                Buluku é um espetáculo cheio de aventuras. Viajamos pelo espaço com um afronauta curioso e brincalhão, que cria planetas, 
+                inventa danças e faz grandes perguntas, como: “de onde vem o mundo?”
               </p>
               <p>
-                Pensado para toda a família, o espetáculo combina teatro, dança, música e narrativas audiovisuais, criando cenários
-                espaciais e futuristas com luzes, imagens e sons. O resultado é uma experiência imersiva, lúdica e educativa, que desperta
-                nas crianças — e também nos adultos — o desejo de imaginar futuros mais sustentáveis, inclusivos e criativos.
+                No palco há brinquedos, imagens em movimento, luzes, sons e um corpo que brinca o tempo todo. 
+                Tudo se junta para criar mundos inspirados em antigas estórias de África sobre a origem do mundo.
+              </p>
+              <p>
+                Em Buluku, não há respostas certas. Há imaginação, movimento e descoberta. 
+                Um espetáculo para crianças e adultos verem, sentirem e brincarmos juntos.
               </p>
 
              
@@ -94,24 +177,43 @@ export default function ShowsPage() {
             </div>
 
             <ol className="timeline">
-              {agenda.map((ev, idx) => (
-                <li key={idx} className="timeline-item">
-                  <div className="dot" />
-                  <div className="t-line" />
-                  <div className="t-body">
-                    <div className="t-top">
-                      <span className="badge">{ev.badge}</span>
-                      <span className="t-date">{ev.date}</span>
-                    </div>
-                    <h3 className="t-title">{ev.title}</h3>
-                    <div className="t-row">
-                      <Pin className="ico-sm" />
-                      <span>{ev.place}</span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ol>
+  {agenda.map((ev, idx) => (
+    <li key={idx} className="timeline-item">
+      <div className="dot" />
+      <div className="t-line" />
+      <div className="t-body">
+        <div className="t-top">
+          {ev.badge && <span className="badge">{ev.badge}</span>}
+          <span className="t-date">
+            {ev.dateLabel} — {ev.time}
+          </span>
+        </div>
+
+        <h3 className="t-title">{ev.title}</h3>
+
+        <div className="t-row">
+          <Pin className="ico-sm" />
+          <span>
+            <strong>{ev.venue}</strong> — {ev.city}
+            {ev.address ? <span> · {ev.address}</span> : null}
+          </span>
+        </div>
+
+        <div className="t-row" style={{ marginTop: 10, gap: 10, alignItems: "center" }}>
+          <span className="mini-status">{statusLabel[ev.status]}</span>
+
+          {ev.ticketUrl && ev.status === "NORMAL" ? (
+            <a className="mini-link" href={ev.ticketUrl} target="_blank" rel="noreferrer">
+              Abrir link
+            </a>
+          ) : null}
+
+          {ev.note ? <span className="mini-note">{ev.note}</span> : null}
+        </div>
+      </div>
+    </li>
+  ))}
+</ol>
           </article>
 
           <article className="shows-card">
@@ -121,21 +223,30 @@ export default function ShowsPage() {
             </div>
 
             <ul className="techlist">
-              <li><span>Classificação:</span> M/6</li>
-              <li><span>Duração:</span> 35 minutos</li>
-              <li><span>Criação/Interpretação:</span> Djam Neguin</li>
-              <li><span>Composição Audiovisual/Operação:</span> Fábio Rocha</li>
-              <li><span>Edição Audiovisual/Grafismos:</span> MMStudio</li>
-              <li><span>Composição Musical:</span> Khaly Angel &amp; Heber Eliber</li>
-              <li><span>Cenografia:</span> Kennart</li>
-              <li><span>Customização Figurinos:</span> Gyslenne</li>
-              <li><span>Desenho de Luz:</span> Péricles Silva</li>
-              <li><span>Acompanhamento Artístico:</span> Clara Andermatt</li>
-            </ul>
+  <li><span>Concepção e Interpretação:</span> DJAM NEGUIN</li>
+  <li><span>Composição Musical e Sonoplastia:</span> ELIAS GOMES e NDU CARLOS</li>
+  <li><span>Composição Audiovisual e Operação:</span> FÁBIO ROCHA</li>
+  <li><span>Desenho de Luz e Direção Técnica:</span> PÉRICLES SILVA</li>
+  <li><span>Espaço Cénico e Adereços:</span> KENNART</li>
+  <li><span>Customização Figurinos:</span> GHISLENE ALVES</li>
+  <li><span>Consultoria Artística:</span> CLARA ANDERMATT</li>
+  <li><span>Edição Audiovisual e Grafismos:</span> MMSTUDIO</li>
+  <li><span>Operação de Luz e Acompanhamento Técnico:</span> MANUEL ABRANTES</li>
+  <li><span>Produção:</span> COMPANHIA CLARA ANDERMATT (MIGUEL PEREIRA, RUANA CAROLINA)</li>
+  <li><span>Parceiros de Comunicação:</span> ANTENA 2; COFFEEPASTE</li>
+  <li><span>Classificação Etária:</span> M/6</li>
+  <li><span>Duração:</span> 35 MINUTOS (aprox.)</li>
+</ul>
 
             <div className="notes">
-              <p><strong>Apoios:</strong> logos enviados pelo Miguel.</p>
+              <p>
+    <strong>Apoios:</strong> REPÚBLICA PORTUGUESA – CULTURA, JUVENTUDE E DESPORTO / DIREÇÃO-GERAL DAS ARTES; PROGRAMA CAIXA CULTURA, DA CAIXA GERAL DE DEPÓSITOS; CÂMARA MUNICIPAL DE LISBOA; INTERPRESS - HUB CRIATIVO DO BAIRRO ALTO; TEATRO DO BAIRRO; ESTUFA - Plataforma Cultural
+  </p>
               <p><strong>Rider Técnico:</strong> mais informações em breve.</p>
+               <p><strong>SOBRE A PARCERIA:</strong> Reconhecendo em Djam Neguin uma voz artística singular, 
+               enraizada nas tradições africanas e voltada para a contemporaneidade, a Companhia Clara Andermatt produz a sua nova criação BULUKU, 
+               desenvolvida em estreita colaboração com o artista. O projeto reflete a missão da Companhia de promover diversidade, diálogo e pensamento crítico,
+                dando continuidade à sua relação com Cabo Verde desde 1994 e assinalando a sua primeira produção dirigida ao público infantil e familiar.</p>
             </div>
           </article>
         </section>

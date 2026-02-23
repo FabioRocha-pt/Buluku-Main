@@ -3,297 +3,281 @@ import MenuTopBar from "../components/MenuTopBar";
 import StarsField from "../components/StarsField";
 import "../styles/sobre.css";
 
-/* --- Types --- */
+/* ========= Types ========= */
 type RowProps = {
-  imgs: string[];
   title: string;
   text: string;
-  reverse?: boolean;
 };
 
-function ImageCarousel({
-  imgs,
-  intervalMs = 3500,
-  fadeMs = 700,
-}: { imgs: string[]; intervalMs?: number; fadeMs?: number }) {
-  const [i, setI] = React.useState(0);
+type PlanetId = "p1" | "p2" | "p3";
+
+type Planet = {
+  id: PlanetId;
+  label: string;
+  thumb: string;
+  hover: string;
+  loop: string[]; // 4 imgs em loop
+};
+
+/* ========= Utils ========= */
+function usePrefersReducedMotion() {
+  const [prefers, setPrefers] = React.useState(false);
   React.useEffect(() => {
-    if (imgs.length <= 1) return;
-    const id = setInterval(() => setI(n => (n + 1) % imgs.length), intervalMs);
-    return () => clearInterval(id);
-  }, [imgs.length, intervalMs]);
+    const m = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setPrefers(!!m.matches);
+    update();
+    m.addEventListener?.("change", update) ?? m.addListener(update as any);
+    return () => m.removeEventListener?.("change", update) ?? m.removeListener(update as any);
+  }, []);
+  return prefers;
+}
+
+/* ========= UI bits ========= */
+function GlovePointer(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 96 96" fill="none" {...props}>
+      <path
+        d="M44 74c-6 0-10-4-10-10V37c0-4 3-7 7-7s7 3 7 7v12-20c0-4 3-7 7-7s7 3 7 7v20-16c0-4 3-7 7-7s7 3 7 7v22-10c0-4 3-7 7-7s7 3 7 7v22c0 14-10 26-24 28l-15 2-12-6Z"
+        fill="rgba(255,255,255,0.92)"
+        stroke="rgba(0,0,0,0.35)"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M32 60c-5 0-10 3-10 9 0 5 4 9 9 9h10"
+        fill="rgba(255,255,255,0.92)"
+        stroke="rgba(0,0,0,0.35)"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function PlanetLoop({ imgs, intervalMs = 2200 }: { imgs: string[]; intervalMs?: number }) {
+  const [i, setI] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!imgs?.length) return;
+    const id = window.setInterval(() => setI((n) => (n + 1) % imgs.length), intervalMs);
+    return () => window.clearInterval(id);
+  }, [imgs, intervalMs]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="planetLoop">
       {imgs.map((src, idx) => (
         <img
           key={src + idx}
           src={src}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ opacity: idx === i ? 1 : 0, transition: `opacity ${fadeMs}ms ease` }}
-          loading="lazy"
+          className={`planetLoopImg ${idx === i ? "on" : ""}`}
+          draggable={false}
         />
       ))}
-      <div className="absolute inset-0 pointer-events-none bg-black/10" />
     </div>
   );
 }
 
-/* --- Icons (vídeo) --- */
-function SpeakerOn(props: any) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path d="M3 10v4h4l5 4V6L7 10H3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-      <path d="M16 8a5 5 0 0 1 0 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <path d="M19 5a9 9 0 0 1 0 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  );
-}
-function SpeakerOff(props: any) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path d="M3 10v4h4l5 4V6L7 10H3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-      <path d="M18 9l-6 6M12 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  );
-}
+/* ========= Main Flow ========= */
+function SobreUniverse({ rows }: { rows: RowProps[] }) {
+  const prefersReducedMotion = usePrefersReducedMotion();
 
-/* --- Fullscreen hero video com botão de áudio --- */
-function FullscreenHeroVideo() {
-  const videoRef = React.useRef<HTMLVideoElement | null>(null);
-  const [muted, setMuted] = React.useState(true);
-  const [ready, setReady] = React.useState(false);
-
-  React.useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onCanPlay = () => setReady(true);
-    v.addEventListener("canplay", onCanPlay);
-    v.muted = true;
-    v.play().catch(() => {});
-    return () => v.removeEventListener("canplay", onCanPlay);
-  }, []);
-
-  const toggleAudio = async () => {
-    const v = videoRef.current;
-    if (!v) return;
-    try {
-      if (muted) {
-        v.muted = false;
-        v.volume = 1;
-        await v.play();
-      } else {
-        v.muted = true;
-      }
-      setMuted(v.muted);
-    } catch {}
+  // 3 temas fixos (um por planeta)
+  const contentByPlanet: Record<PlanetId, RowProps> = {
+    p1: rows[0],
+    p2: rows[1],
+    p3: rows[2],
   };
 
+  const PLANETS: Planet[] = [
+    {
+      id: "p1",
+      label: "Sobre o Espetáculo",
+      thumb: "/images/planetas/planeta1.png",
+      hover: "/images/planetas/hover-planeta1.jpg",
+      loop: [
+        "/images/planetas/p1/5.jpg",
+        "/images/planetas/p1/2.png",
+        "/images/planetas/p1/3.png",
+        "/images/planetas/p1/4.png",
+        "/images/planetas/p1/1.png",
+      ],
+    },
+    {
+      id: "p2",
+      label: "A ideia por detrás do projeto",
+      thumb: "/images/planetas/planeta2.png",
+      hover: "/images/planetas/hover-planeta2.png",
+      loop: [
+        "/images/planetas/p2/1.png",
+        "/images/planetas/p2/2.png",
+        "/images/planetas/p2/3.png",
+        "/images/planetas/p2/4.png",
+      ],
+    },
+    {
+      id: "p3",
+      label: "Bio de Djam",
+      thumb: "/images/planetas/planeta3.png",
+      hover: "/images/planetas/hover-planeta3.jpg",
+      loop: [
+        "/images/planetas/p3/1.jpg",
+        "/images/planetas/p3/2.png",
+        "/images/planetas/p3/3.jpg",
+        "/images/planetas/p3/4.jpg",
+      ],
+    },
+  ];
+
+  const [mode, setMode] = React.useState<"seal" | "warp" | "planets" | "detail">("seal");
+  const [selected, setSelected] = React.useState<Planet | null>(null);
+
+  const startWarp = () => {
+    setSelected(null);
+    if (prefersReducedMotion) {
+      setMode("planets");
+      return;
+    }
+    setMode("warp");
+    window.setTimeout(() => setMode("planets"), 1100);
+  };
+
+  const openPlanet = (p: Planet) => {
+    setSelected(p);
+    setMode("detail");
+  };
+
+  const back = () => {
+    if (mode === "detail") {
+      setMode("planets");
+      setSelected(null);
+    } else {
+      setMode("seal");
+      setSelected(null);
+    }
+  };
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") back();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  const detail = selected ? contentByPlanet[selected.id] : null;
+
   return (
-    <section id="hero-video" className="relative w-screen overflow-hidden"
-       style={{ height: '100dvh' }} 
-       >
-      <video
-        ref={videoRef}
-        className="hero-video__media absolute inset-0 w-full h-full"
-        src="/videos/4kvid.mp4"
-        poster="/images/intro-poster.jpg"
-        autoPlay
-        muted={muted}
-        loop
-        playsInline
-        preload="auto"
-      />
-      <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+    <section className="sobreUniverse">
+      {/* Warp overlay full-screen */}
+      {mode === "warp" && (
+        <div className="warp" aria-hidden>
+          {Array.from({ length: 52 }).map((_, i) => (
+            <span key={i} className="warpStreak" style={{ ["--i" as any]: i }} />
+          ))}
+        </div>
+      )}
 
-      <div
-        className="absolute left-1/2 -translate-x-1/2 z-[10]"
-        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 60px)" }}
-      >
-        <button
-          type="button"
-          onClick={toggleAudio}
-          aria-pressed={!muted}
-          aria-label={muted ? "Ativar som do vídeo" : "Silenciar vídeo"}
-          className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-                     bg-white/12 text-white backdrop-blur ring-1 ring-white/30
-                     hover:bg-white/20 hover:ring-white/50 transition
-                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          style={{ fontFamily: "Gliker, system-ui, sans-serif" }}
-        >
-          {muted ? <SpeakerOff className="h-5 w-5" /> : <SpeakerOn className="h-5 w-5" />}
-          <span className="text-sm sm:text-base">{muted ? "Ativar som" : "Silenciar"}</span>
+      {/* back button */}
+      {mode !== "seal" && (
+        <button type="button" className="uiBack" onClick={back}>
+          ← Voltar
         </button>
+      )}
 
-        {ready && muted && (
-          <div
-            className="mt-2 text-xs text-white/85 text-center"
-            style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white" }}
-          >
-            Clique para ouvir o áudio
+
+      {/* SEAL */}
+      {mode === "seal" && (
+        <div className="sealScreen">
+          <button type="button" className="sealBtn" onClick={startWarp} aria-label="Clicar para abrir o portal">
+            <div className="sealRing">
+              <img src="/images/buluku-lua.png" alt="Buluku na lua" className="sealImg" draggable={false} />
+            </div>
+          </button>
+
+          <div className="sealHint" aria-hidden>
+            <GlovePointer className="glove" />
+            <div className="hintBubble">Clica no Buluku</div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* PLANETS */}
+      {mode === "planets" && (
+        <div className="planetsScreen">
+          <div className="planetsCaption">Escolhe um planeta</div>
+
+          <div className="planetsField">
+            {PLANETS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={`planetBtn ${p.id}`}
+                onClick={() => openPlanet(p)}
+                aria-label={p.label}
+              >
+                <div className="planetRing">
+                  <img className="planetImg base" src={p.thumb} alt={p.label} draggable={false} />
+                  <img className="planetImg hover" src={p.hover} alt="" aria-hidden draggable={false} />
+                </div>
+                <div className="planetLabel">{p.label}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* DETAIL */}
+      {mode === "detail" && selected && detail && (
+        <div className="detailScreen">
+          {/* Left: planeta “close-up” */}
+          <div className="detailPlanetWrap">
+            <div className="detailPlanetCircle">
+              <PlanetLoop imgs={selected.loop} intervalMs={2200} />
+            </div>
+          </div>
+
+          {/* Right: texto do tema desse planeta */}
+          <aside className="detailText">
+            <div className="detailTopic">{selected.label}</div>
+            <h2 className="detailH">{detail.title}</h2>
+            <p className="detailP">{detail.text}</p>
+          </aside>
+        </div>
+      )}
     </section>
   );
 }
-function RowBlock({ imgs, title, text, reverse = false }: RowProps) {
-  const dir = reverse ? "from-right reverse" : "from-left";
 
-  // regra simples: ativa “Ler mais” se texto maior que 240 caracteres
-  const needsReadMore = (text ?? "").length > 240;
-
-  return (
-    <div className={`sobre-row reveal ${dir}`}>
-      <div className="sobre-image">
-        <ImageCarousel imgs={imgs} />
-      </div>
-
-      <div className="sobre-text">
-        <div className="sobre-text-inner">
-          <h3>{title}</h3>
-
-          {needsReadMore ? (
-            <ExpandableText collapsedLines={6}>
-              <p>{text}</p>
-            </ExpandableText>
-          ) : (
-            <p>{text}</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ExpandableText({
-  children,
-  collapsedLines = 5,         // quantas linhas mostrar antes do “Ler mais”
-  className = "",
-}: {
-  children: React.ReactNode;
-  collapsedLines?: number;
-  alwaysCollapsedOnMobile?: boolean;
-  className?: string;
-}) {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <div className={`exp-wrap ${className} ${open ? "open" : "closed"}`}>
-      <div
-        className="exp-content"
-        style={
-          !open
-            ? ({
-                WebkitLineClamp: collapsedLines,
-                lineClamp: collapsedLines, // fallback
-              } as React.CSSProperties)
-            : undefined
-        }
-      >
-        {children}
-      </div>
-
-      {/* fade no fim quando está fechado */}
-      {!open && <div className="exp-fade" aria-hidden />}
-
-      {/* botão */}
-      <button
-        type="button"
-        className="exp-btn"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-      >
-        {open ? "Ler menos" : "Ler mais"}
-      </button>
-    </div>
-  );
-}
-
-/* --- Hook: revela as rows quando entram no viewport --- */
-function useRevealOnScroll(selector = ".reveal") {
-  React.useEffect(() => {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>(selector));
-    if (nodes.length === 0) return;
-    const obs = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add("in");
-            obs.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-    nodes.forEach(n => obs.observe(n));
-    return () => obs.disconnect();
-  }, [selector]);
-}
-
-/* --- Página /sobre --- */
+/* ========= Page ========= */
 export default function Sobre() {
-  useRevealOnScroll(); // ativa as animações das rows
-
-const rows: RowProps[] = [
-  {
-    imgs: ["/images/sobre/1-1.png", "/images/sobre/1-2.png", "/images/sobre/1-3.png"],
-    title: "Buluku",
-    text:
-      "Buluku é um jovem afronauta que vive em Oba Txon, uma cidade africana flutuante que dança entre as nuvens, no encontro do Atlântico com o Cosmos. Desde pequeno aprendeu que as estrelas também contam histórias, e que cada planeta pode guardar um segredo para cuidar da vida.\n\nCurioso, sonhador e cheio de energia, Buluku viaja pelo espaço acompanhado dos seus amigos androids Kandjila e Zuri. Juntos, visitam mundos mágicos feitos de sons, culturas e mitologias africanas futuristas, descobrindo novas formas de viver em harmonia com a natureza.\n\nNo seu fato espacial branco e azul, com um cachecol de pano di terra que o liga à sua origem, Buluku é um viajante destemido: adora semear novas ideias e transformar cada encontro numa aventura.\n\nBuluku é mais do que uma inspiração: é um convite a imaginar futuros divertidos e cheios de esperança.",
-  },
-  {
-    imgs: ["/images/sobre/2-1.png", "/images/sobre/2-2.png", "/images/sobre/2-3.png"],
-    title: "Bio Androids",
-    text:
-      "Kandjila é um cão-robô protetor e brincalhão: corre veloz, fareja energias cósmicas e às vezes mete-se em sarilhos por curiosidade. Zuri é um androide ágil e sem género definido, com um rosto-tela expressivo. Traduz línguas do cosmos, guarda histórias ancestrais e projeta hologramas para explicar tradições e eco-tecnologias — tudo com humor e provérbios africanos.",
-    reverse: true,
-  },
-  {
-    imgs: ["/images/sobre/3-1.png", "/images/sobre/3-2.png", "/images/sobre/3-3.png"],
-    title: "A ideia por detrás do Projeto",
-    text:
-      "“Buluku – o Afronauta” nasce para ampliar o imaginário infantil com referências plurais. Em vez do olhar único eurocêntrico, propõe futuros diversos onde todas as crianças se podem ver como protagonistas. A narrativa junta ecologia e diversidade cultural: o futuro só acontece em diálogo com a natureza e com respeito às diferenças. O projeto é transmidiático — espetáculo ao vivo, animação, narrativas digitais e conteúdos interativos — para que Buluku acompanhe as crianças no dia a dia como parceiro de brincadeira, inspiração e aprendizagem.",
-  },
-  {
-    imgs: ["/images/sobre/4-1.png", "/images/sobre/4-2.png", "/images/sobre/4-3.png"],
-    title: "Bio de Djam",
-    text:
-      "Djam Neguin é uma das figuras mais revolucionárias da cena artístico-cultural de Cabo Verde. Atua entre artes cénicas (dança, teatro, música, performance) e visuais (cinema, videoarte, fotoperformance), também como diretor criativo, produtor, curador, formador e artivista. As suas criações exploram perspetivas afrofuturistas e a cultura cabo-verdiana, e já circularam por festivais e cidades como Nova Iorque, Los Angeles, Paris, Madrid, Bogotá, Maputo, Lisboa, Luanda, entre outras.",
-  },
-];
-
-
+  const rows: RowProps[] = [
+    {
+      title: "Sobre o Espetáculo",
+      text:
+        "Partindo de pesquisas aprofundadas sobre estórias africanas de criação do mundo e recorrendo a softwares de inteligência artificial e realidade virtual como ferramentas criativas, Djam Neguin concebe um espetáculo multimédia que articula performance ao vivo com conteúdos audiovisuais projetados (vídeo mapping). O resultado é uma experiência poética e sensorial que convoca diferentes linguagens artísticas, criando um ambiente imersivo, envolvente e acessível ao público infantil e familiar. O projeto desdobra-se em atividades paralelas que ampliam a sua dimensão transdisciplinar, como a Roda de Conversa pós-espetáculo e a oficina “O Meu Eu Astronauta e o Metaverso”, direcionada para a criação de personagens.",
+    },
+    {
+      title: "A ideia por detrás do Projeto",
+      text:
+        "“Buluku – o Afronauta” nasce para ampliar o imaginário infantil com referências plurais. Em vez do olhar único eurocêntrico, propõe futuros diversos onde todas as crianças se podem ver como protagonistas. A narrativa junta ecologia e diversidade cultural: o futuro só acontece em diálogo com a natureza e com respeito às diferenças. O projeto é transmidiático — espetáculo ao vivo, animação, narrativas digitais e conteúdos interativos — para que Buluku acompanhe as crianças no dia a dia como parceiro de brincadeira, inspiração e aprendizagem.",
+    },
+    {
+      title: "Bio de Djam",
+      text:
+        "Artista multidisciplinar da nova geração de criativos contemporâneos cabo-verdianos, expressando-se através da dança, do teatro, do cinema e da música, cruzando várias formas de criação. Desde 2020, tem se dedicado à exploração de estéticas afro futurísticas queer e agendas descoloniais e antirracistas. Nascido em Cabo Verde, viveu dos 9 aos 19 anos em Braga, onde desenvolveu vários projetos artísticos. Em 2011 ingressou na ESTC - Curso de Teatro, ramo Atores.",
+    },
+  ];
 
   return (
-    <main
-      className="w-screen min-h-screen bg-black text-white overflow-x-hidden"
-      style={{ fontFamily: "Gliker, system-ui, sans-serif" }}
-    >
-      {/* Starfield por trás (fixo, com parallax) */}
+    <main className="w-screen min-h-screen bg-black text-white overflow-x-hidden" style={{ fontFamily: "Gliker, system-ui, sans-serif" }}>
       <StarsField speeds={{ far: 0.12, mid: 0.22, near: 0.34 }} />
-
-      {/* top bar centrado */}
       <MenuTopBar heightPx={48} />
       <div className="h-12" aria-hidden />
 
-      {/* vídeo fullscreen */}
-      <FullscreenHeroVideo />
-
-      {/* grid xadrez, full-bleed */}
-      <section className="sobre-wrap">
-        <div className="sobre-grid">
-          {rows.map((r, i) => (
-            <RowBlock
-              key={r.title}
-              {...r}
-              reverse={r.reverse ?? i % 2 === 1}
-            />
-          ))}
-        </div>
-      </section>
-      
+      {/* Full page experience */}
+      <SobreUniverse rows={rows} />
     </main>
   );
 }

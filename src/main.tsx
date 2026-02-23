@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import "./index.css";
-
+import "./i18n";
 
 import App from "./App";
 import Sobre from "./pages/Sobre";
@@ -37,14 +37,13 @@ function RootLayout() {
     title: "Apoios",
     items: [
       { src: "/images/logos/cxc.png",            alt: "Caixa Cultura" },
-      { src: "/images/logos/cmlisboa.png",       alt: "Câmara Municipal de Lisboa" },
-      { src: "/images/logos/interpress_rgb-01.png", alt: "Interpress — Hub Criativo do Bairro Alto" },
+      { src: "/images/logos/interpress_rgb-25_branco.png", alt: "Interpress — Hub Criativo do Bairro Alto" },
     ],
   },
   {
     title: "Parceria de comunicação",
     items: [
-      { src: "/images/logos/antena2.jpg",   alt: "Antena 2" },
+      { src: "/images/logos/antena2.png",   alt: "Antena 2" },
       { src: "/images/logos/coffeepaste.png", alt: "Coffeepaste" },
     ],
   },

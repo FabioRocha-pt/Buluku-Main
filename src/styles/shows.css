@@ -6,7 +6,25 @@
   color:#fff;
   overflow-x:hidden;
 }
-
+.mini-status{
+  display:inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+}
+.mini-link{
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.08);
+}
+.mini-note{
+  font-size: 12px;
+  opacity: .8;
+}
 /* spacer abaixo da topbar fixa */
 .h-spacer{ height:48px; }
 

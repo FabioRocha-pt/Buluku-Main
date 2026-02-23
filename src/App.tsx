@@ -1,53 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-function useHasScrolled(px = 40) {
-  const [scrolled, setScrolled] = React.useState(false);
-  React.useEffect(() => {
-    const onScroll = () => {
-      if (!scrolled && (window.scrollY || window.pageYOffset) > px) setScrolled(true);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true } as any);
-    onScroll(); // in case you're already past the threshold
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [scrolled, px]);
-  return scrolled;
-}
-
-function useRevealOnScroll(
-  delayMs = 0,
-  opts?: { threshold?: number; rootMargin?: string; enabled?: boolean }
-) {
-  const { threshold = 0.5, rootMargin = "0px 0px -25% 0px", enabled = true } = opts || {};
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const [show, setShow] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!enabled) return;             // don’t observe yet
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          const t = setTimeout(() => setShow(true), delayMs);
-          obs.unobserve(entry.target);
-          return () => clearTimeout(t);
-        }
-      },
-      { threshold, rootMargin }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [delayMs, enabled, threshold, rootMargin]);
-
-  return { ref, show };
-}
-
-
 
 function StarsSVGFixed({ scrollY }: { scrollY: number }) {
   const { w, h } = useWindowSize();
   const area = Math.max(1, w * h);
-  // scale star count by screen area (baseline ≈ 1440x900)
   const density = Math.max(0.6, Math.min(1.25, area / (1440 * 900)));
 
   const stars = useMemo(() => {
@@ -61,47 +17,67 @@ function StarsSVGFixed({ scrollY }: { scrollY: number }) {
         dur: (3 + rng() * 5).toFixed(2),
       }));
     return {
-      far:  mk(220, 0.06, 0.14),
-      mid:  mk(160, 0.10, 0.22),
+      far: mk(220, 0.06, 0.14),
+      mid: mk(160, 0.1, 0.22),
       near: mk(100, 0.14, 0.32),
     };
   }, [density]);
 
-  // gentler drift on phones so it doesn’t jitter
   const isMobile = w < 640;
-  const pFar  = -scrollY * (isMobile ? 0.10 : 0.14);
-  const pMid  = -scrollY * (isMobile ? 0.18 : 0.24);
+  const pFar = -scrollY * (isMobile ? 0.1 : 0.14);
+  const pMid = -scrollY * (isMobile ? 0.18 : 0.24);
   const pNear = -scrollY * (isMobile ? 0.28 : 0.38);
 
   return (
-    <svg className="fixed inset-0 -z-10 pointer-events-none"
-         width="100%" height="100%"
-         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-      <g transform={`translate(0 ${(pFar  / Math.max(1,h)) * 100})`}>
+    <svg
+      className="fixed inset-0 -z-10 pointer-events-none"
+      width="100%"
+      height="100%"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <g transform={`translate(0 ${(pFar / Math.max(1, h)) * 100})`}>
         {stars.far.map((s, i) => (
           <circle key={`f${i}`} cx={s.x} cy={s.y} r={s.r} fill="white" opacity="0.7">
-            <animate attributeName="opacity" values="0.4;0.9;0.4" dur={`${s.dur}s`} begin={`${s.delay}s`} repeatCount="indefinite" />
+            <animate
+              attributeName="opacity"
+              values="0.4;0.9;0.4"
+              dur={`${s.dur}s`}
+              begin={`${s.delay}s`}
+              repeatCount="indefinite"
+            />
           </circle>
         ))}
       </g>
-      <g transform={`translate(0 ${(pMid  / Math.max(1,h)) * 100})`}>
+      <g transform={`translate(0 ${(pMid / Math.max(1, h)) * 100})`}>
         {stars.mid.map((s, i) => (
           <circle key={`m${i}`} cx={s.x} cy={s.y} r={s.r} fill="white" opacity="0.85">
-            <animate attributeName="opacity" values="0.5;1;0.5" dur={`${s.dur}s`} begin={`${s.delay}s`} repeatCount="indefinite" />
+            <animate
+              attributeName="opacity"
+              values="0.5;1;0.5"
+              dur={`${s.dur}s`}
+              begin={`${s.delay}s`}
+              repeatCount="indefinite"
+            />
           </circle>
         ))}
       </g>
-      <g transform={`translate(0 ${(pNear / Math.max(1,h)) * 100})`}>
+      <g transform={`translate(0 ${(pNear / Math.max(1, h)) * 100})`}>
         {stars.near.map((s, i) => (
           <circle key={`n${i}`} cx={s.x} cy={s.y} r={s.r} fill="white" opacity="0.95">
-            <animate attributeName="opacity" values="0.6;1;0.6" dur={`${s.dur}s`} begin={`${s.delay}s`} repeatCount="indefinite" />
+            <animate
+              attributeName="opacity"
+              values="0.6;1;0.6"
+              dur={`${s.dur}s`}
+              begin={`${s.delay}s`}
+              repeatCount="indefinite"
+            />
           </circle>
         ))}
       </g>
     </svg>
   );
 }
-
 
 /* --- Hooks + helpers --- */
 function useScroll(onFrame: (p: { y: number }) => void, deps: any[] = []) {
@@ -138,8 +114,7 @@ function usePrefersReducedMotion() {
     const update = () => setPrefers(!!m.matches);
     update();
     m.addEventListener?.("change", update) ?? m.addListener(update as any);
-    return () =>
-      m.removeEventListener?.("change", update) ?? m.removeListener(update as any);
+    return () => m.removeEventListener?.("change", update) ?? m.removeListener(update as any);
   }, []);
   return prefers;
 }
@@ -195,24 +170,19 @@ function TitleMorph({ scrollY }: { scrollY: number }) {
   const { w: vw, h: vh } = useWindowSize();
   const isMobile = vw < 640;
 
-  // posição (igual ao que tinhas)
   const moveT = vh ? Math.min(1, scrollY / (vh * 0.18)) : 0;
 
-  const y0 = isMobile ? vh * 0.50: vh * 0.26;
+  const y0 = isMobile ? vh * 0.5 : vh * 0.26;
   const y1 = isMobile ? vh * 0.52 : vh * 0.44;
   const y = y0 + (y1 - y0) * moveT;
 
   const W = isMobile ? Math.min(vw - 25, 620) : Math.min(vw - 80, 900);
 
-  // ✅ FADE até "à lua"
-  // começa a desaparecer ligeiramente após iniciar scroll
-  const fadeStart = vh * 0.06;  // 6vh
-  // desaparece completamente perto da lua (ajusta se quiseres)
-  const fadeEnd   = vh * 0.55;  // 55vh  (experimentar 0.50–0.70)
+  const fadeStart = vh * 0.06;
+  const fadeEnd = vh * 0.55;
   const fadeT = smoothstep(fadeStart, fadeEnd, scrollY);
   const opacity = 1 - fadeT;
 
-  // ✅ quando já está invisível, remove do DOM (garante que “desaparece” mesmo)
   if (opacity <= 0.01) return null;
 
   return (
@@ -230,12 +200,12 @@ function TitleMorph({ scrollY }: { scrollY: number }) {
       >
         <svg
           width={W}
-          viewBox="-80 0 1160 420"   // ✅ mais espaço à esquerda e direita
+          viewBox="-80 0 1160 420"
           preserveAspectRatio="xMidYMid meet"
           style={{
             fontFamily: "Genty, system-ui, sans-serif",
-            display: "block",        // ✅ ajuda no Safari
-            overflow: "visible",     // ok, mas o principal é o viewBox maior
+            display: "block",
+            overflow: "visible",
           }}
         >
           <defs>
@@ -253,7 +223,12 @@ function TitleMorph({ scrollY }: { scrollY: number }) {
             fill="url(#yg)"
             style={{ letterSpacing: "-10px" }}
           >
-            <textPath xlinkHref="#titleArc" startOffset={isMobile ? "16%" : "20%"} dominantBaseline="middle" textLength={isMobile ? 680 : 600} >
+            <textPath
+              xlinkHref="#titleArc"
+              startOffset={isMobile ? "16%" : "20%"}
+              dominantBaseline="middle"
+              textLength={isMobile ? 680 : 600}
+            >
               Buluku
             </textPath>
           </text>
@@ -262,6 +237,7 @@ function TitleMorph({ scrollY }: { scrollY: number }) {
     </div>
   );
 }
+
 function LogoMorph({
   scrollY,
   moonRef,
@@ -276,7 +252,7 @@ function LogoMorph({
   const entry = useEntryProgress(0, 800);
   const entryOpacity = 0.2 + 0.8 * entry;
 
-  const HIDE_AT = vh * 0.10;
+  const HIDE_AT = vh * 0.1;
   const t = vh ? Math.min(1, scrollY / HIDE_AT) : 0;
   const hideBig = scrollY > HIDE_AT;
 
@@ -285,7 +261,6 @@ function LogoMorph({
 
   const xSeat = vw / 2 - SIZE_START / 2;
 
-  // ✅ SNAP AO TOPO DA LUA (real position)
   const [moonTop, setMoonTop] = useState<number | null>(null);
 
   useEffect(() => {
@@ -293,7 +268,7 @@ function LogoMorph({
       const el = moonRef.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
-      setMoonTop(r.top); // topo real no viewport
+      setMoonTop(r.top);
     };
     update();
     window.addEventListener("resize", update);
@@ -304,14 +279,12 @@ function LogoMorph({
     };
   }, [moonRef]);
 
-  // quanto do boneco "entra" na lua (ajusta a gosto)
   const SEAT_FACTOR = isMobile ? 0.62 : 0.58;
 
-  // se ainda não temos moonTop (primeiro render), fallback para vh
   const ySeat =
     moonTop != null
       ? moonTop - SIZE_START * SEAT_FACTOR
-      : (vh * (isMobile ? 0.80 : 0.70)) - (SIZE_START * SEAT_FACTOR);
+      : vh * (isMobile ? 0.8 : 0.7) - SIZE_START * SEAT_FACTOR;
 
   const xCorner = 16;
   const yCorner = 10;
@@ -375,7 +348,6 @@ function LogoMorph({
   );
 }
 
-
 function TopCenterMenu() {
   const items = [
     { label: "Sobre", href: "/sobre" },
@@ -386,7 +358,6 @@ function TopCenterMenu() {
 
   const [open, setOpen] = React.useState(false);
 
-  // Acessibilidade: ESC fecha; ao subir p/ desktop também fecha
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     const onResize = () => window.innerWidth >= 768 && setOpen(false);
@@ -400,13 +371,11 @@ function TopCenterMenu() {
 
   return (
     <>
-      {/* NAV container fixo no topo */}
       <nav
         className="tcm-root fixed left-1/2 -translate-x-1/2 z-[500] safe-top"
         style={{ fontFamily: "Gliker, system-ui, sans-serif" }}
         aria-label="Navegação principal"
       >
-        {/* Desktop: lista centrada */}
         <ul className="tcm-desktop topmenu flex items-center justify-center gap-6 sm:gap-10 lg:gap-14 text-base sm:text-xl lg:text-2xl">
           {items.map((it) => (
             <li key={it.label} className="inline-block">
@@ -414,7 +383,6 @@ function TopCenterMenu() {
                 href={it.href}
                 className="px-3 py-1 hover:opacity-80 active:opacity-70 transition
                            focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-md"
-                
               >
                 {it.label}
               </a>
@@ -422,7 +390,6 @@ function TopCenterMenu() {
           ))}
         </ul>
 
-        {/* Mobile: só hambúrguer */}
         <button
           type="button"
           className="tcm-burger"
@@ -433,24 +400,38 @@ function TopCenterMenu() {
         >
           {!open ? (
             <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden>
-              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path
+                d="M4 7h16M4 12h16M4 17h16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           ) : (
             <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden>
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           )}
         </button>
       </nav>
 
-      {/* Drawer mobile */}
       <div className={`tcm-drawer ${open ? "open" : ""}`} id="tcm-drawer">
         <button className="tcm-backdrop" aria-label="Fechar menu" onClick={() => setOpen(false)} />
         <div className="tcm-panel" role="dialog" aria-modal="true">
           <ul className="tcm-list" role="menu">
             {items.map((it) => (
               <li key={it.label} role="none">
-                <a role="menuitem" href={it.href} onClick={() => setOpen(false)} style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white" }}>
+                <a
+                  role="menuitem"
+                  href={it.href}
+                  onClick={() => setOpen(false)}
+                  style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white" }}
+                >
                   {it.label}
                 </a>
               </li>
@@ -462,6 +443,7 @@ function TopCenterMenu() {
     </>
   );
 }
+
 function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | null> }) {
   const { w } = useWindowSize();
   const isMobile = w < 640;
@@ -471,12 +453,34 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
 
   const [show, setShow] = useState(false);
 
+  // 🔊 áudio (começa muted, botão desmuta)
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [muted, setMuted] = useState(true);
+
+  const toggleAudio = async () => {
+    const v = videoRef.current;
+    if (!v) return;
+    try {
+      if (v.muted) {
+        v.muted = false;
+        v.volume = 1;
+        await v.play();
+      } else {
+        v.muted = true;
+      }
+      setMuted(v.muted);
+    } catch {
+      // iOS pode bloquear; mantém muted
+      v.muted = true;
+      setMuted(true);
+    }
+  };
+
   // ✅ Fade-in quando o "centro da lua" entra no viewport
   useEffect(() => {
     const moonEl = moonRef.current;
     if (!moonEl) return;
 
-    // cria um sentinel invisível no centro da lua (posição absoluta no body)
     const sentinel = document.createElement("div");
     sentinel.setAttribute("data-moon-sentinel", "1");
     sentinel.style.position = "absolute";
@@ -490,11 +494,8 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
     const placeSentinel = () => {
       const r = moonEl.getBoundingClientRect();
       const docY = window.scrollY || window.pageYOffset;
-
-      // centro da lua no documento
       const cx = r.left + r.width / 2;
       const cy = r.top + r.height / 2 + docY;
-
       sentinel.style.left = `${cx}px`;
       sentinel.style.top = `${cy}px`;
     };
@@ -509,7 +510,6 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
       },
       {
         threshold: 0.15,
-        // faz trigger quando o ponto chega perto do centro do ecrã
         rootMargin: "-40% 0px -40% 0px",
       }
     );
@@ -546,15 +546,46 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
             backdropFilter: "blur(8px)",
             opacity: show ? 1 : 0,
             transform: show ? "translateY(0)" : "translateY(18px)",
-            transition: "opacity 650ms cubic-bezier(.22,.61,.36,1), transform 650ms cubic-bezier(.22,.61,.36,1)",
+            transition:
+              "opacity 650ms cubic-bezier(.22,.61,.36,1), transform 650ms cubic-bezier(.22,.61,.36,1)",
+            position: "relative",
           }}
         >
+          {/* botão som */}
+          <button
+            type="button"
+            onClick={toggleAudio}
+            aria-pressed={!muted}
+            aria-label={muted ? "Ativar som do vídeo" : "Silenciar vídeo"}
+            style={{
+              position: "absolute",
+              zIndex: 5,
+              right: 14,
+              top: 14,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "10px 12px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,.22)",
+              background: "rgba(0,0,0,.35)",
+              backdropFilter: "blur(8px)",
+              color: "white",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 650,
+            }}
+          >
+            {muted ? "🔇 Som" : "🔊 Som"}
+          </button>
+
           <div style={{ position: "relative", width: "100%", aspectRatio: ratio }}>
             <video
+              ref={videoRef}
               key={src}
               src={src}
               autoPlay
-              muted
+              muted={muted}
               playsInline
               loop
               preload="auto"
@@ -573,105 +604,82 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
   );
 }
 
-function FeatureCards() {
-  const cards = [
-    {
-      title: "🚀🌍 Buluku – o Afronauta",
-      desc:
-        "Buluku mora em Oba Txon, uma incrível cidade africana que flutua no céu! Junto com os androids Kandjila e Zuri, ele viaja pelo espaço à procura de planetas mágicos e cheios de vida.",
-      href: "/sobre",
-      videoSrc: "/videos/video-desc1.mp4",
-      poster: "/images/poster-desc1.jpg",
-    },
-    {
-      title: "Sobre o que é o Show?",
-      desc:
-        "Performance lúdica com tema espacial, que combina música, teatro, dança e interação com o público.",
-      href: "/shows",
-      videoSrc: "/videos/video-desc2.mp4",
-    },
-    {
-      title: "Próximas Datas",
-      desc:
-        "👉 Try Out – 27 de Outubro.",
-     
-      videoSrc: "/videos/video-desc3.mp4",
-    },
+
+function MiniAgenda() {
+  const items = [
+    { date: "13 Fev", time: "10h30", city: "Praia (CV)", title: "Try Out", status: "Encerrado" },
+    { date: "6 Mar", time: "19h00", city: "Lisboa", title: "Try Out", status: "Encerrado" },
+    { date: "21–22 Mar", time: "16h00", city: "Lisboa", title: "Estreia — Teatro do Bairro", status: "Em breve" },
+    { date: "28 Mar", time: "16h00", city: "Águeda", title: "Espetáculo", status: "Em breve" },
+    { date: "5 Jun", time: "10h30 & 14h30", city: "Braga", title: "Theatro Circo (Escolas)", status: "Escolas" },
+    { date: "6 Jun", time: "11h30", city: "Braga", title: "Theatro Circo (Público)", status: "Em breve" },
+    { date: "6 Jun", time: "15h00", city: "Braga", title: "Oficina", status: "Em breve" },
   ];
 
   return (
-<section
-  id="projects"
-  // push the entire section further down the page
-  className="mt-[48vh] sm:mt-[52vh] lg:mt-[60vh]"
-  style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white" }}
->
-  {/* make the section tall and anchor the row to the bottom */}
-  <div className="container min-h-[50vh] flex items-end">
-+   <div className="cards-grid w-full">
-  {cards.map((c, i) => {
-    const allow = useHasScrolled(40);
-    const { ref, show } = useRevealOnScroll(i * 140, {
-      enabled: allow,
-      threshold: 0.5,
-      rootMargin: "0px 0px -25% 0px",
-    });
+    <section
+      className="w-full"
+      style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white", padding: "clamp(18px, 5vh, 56px) 0" }}
+    >
+      <div className="container">
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+          <h2 style={{ fontSize: "clamp(18px, 2.2vw, 26px)", margin: 0 }}>Agenda</h2>
+          <a href="/shows" style={{ opacity: 0.9, fontSize: 14 }}>
+            Ver tudo →
+          </a>
+        </div>
 
-    return (
-      <div key={c.title} ref={ref} className={`reveal-card ${show ? "show" : ""} projects-card`}>
-        <a
-          href={c.href}
-          className="group block rounded-[24px] overflow-hidden
-+            bg-white/[0.03] backdrop-blur-sm ring-2 ring-white/70
-+            shadow-[0_0_26px_rgba(255,255,255,0.28)]
-+            hover:shadow-[0_0_42px_rgba(255,255,255,0.45)]
-+            transition-all duration-300 hover:-translate-y-1 text-white"
+        <div
+          style={{
+            borderRadius: 18,
+            border: "1px solid rgba(255,255,255,.18)",
+            background: "rgba(255,255,255,.03)",
+            backdropFilter: "blur(8px)",
+            overflow: "hidden",
+          }}
         >
-          {/* VIDEO BAND */}
-          <div className="w-full overflow-hidden" style={{ aspectRatio: "16 / 9" }}>
-            <video
-              className="w-full h-full object-cover"
-              src={c.videoSrc}
-              poster={c.poster}
-              muted
-              loop
-              autoPlay
-              playsInline
-              preload="metadata"
-            />
-          </div>
+          {items.map((it, i) => (
+            <div
+              key={i}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "110px 1fr",
+                gap: 14,
+                padding: "14px 16px",
+                borderTop: i ? "1px solid rgba(255,255,255,.10)" : "none",
+              }}
+            >
+              <div style={{ opacity: 0.95 }}>
+                <div style={{ fontWeight: 700 }}>{it.date}</div>
+                <div style={{ fontSize: 12, opacity: 0.85 }}>{it.time}</div>
+                <div style={{ fontSize: 12, opacity: 0.75 }}>{it.city}</div>
+              </div>
 
-          <div className="min-h-[260px] px-8 pt-12 pb-8 flex flex-col items-center justify-center text-center">
-            <h3 className="text-2xl md:text-[26px] leading-snug mb-3 md:mb-4 text-white mx-auto max-w-[300px]">
-              {c.title}
-            </h3>
-
-            <p className="text-white/90 leading-relaxed text-[15px] mx-auto max-w-[320px]">
-              {c.desc}
-            </p>
-
-            <span className="inline-flex items-center gap-2 mt-6 text-white font-semibold">
-              Saber +
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  className="translate-x-0 group-hover:translate-x-1 transition-transform">
-                <path d="M5 12h14M13 5l7 7-7 7"
-                      stroke="currentColor" strokeWidth="2"
-                      strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </div>
-
-        </a>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ fontWeight: 650 }}>{it.title}</div>
+                {it.status ? (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      padding: "6px 10px",
+                      borderRadius: 999,
+                      border: "1px solid rgba(255,255,255,.22)",
+                      background: "rgba(255,255,255,.06)",
+                      whiteSpace: "nowrap",
+                      opacity: 0.9,
+                    }}
+                  >
+                    {it.status}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    );
-  })}
-</div>
-  </div>
-</section>
-
-);
+    </section>
+  );
 }
-
 
 /* --- MAIN APP --- */
 export default function App() {
@@ -681,16 +689,13 @@ export default function App() {
   useScroll(({ y }) => setScrollY(y), []);
 
   const viewportH = useViewportHeight();
-  const progress = useMemo(
-    () => (viewportH > 0 ? Math.min(1, scrollY / (viewportH * 1.5)) : 0),
-    [scrollY, viewportH]
-  );
+  const progress = useMemo(() => (viewportH > 0 ? Math.min(1, scrollY / (viewportH * 1.5)) : 0), [scrollY, viewportH]);
 
   const { w: vw, h: vh } = useWindowSize();
   const isMobile = vw < 640;
   const isTablet = vw >= 640 && vw < 1024;
   const motion = prefersReducedMotion ? 0 : 1;
-  // Earth entry + orbit (responsive)
+
   const entry = useEntryProgress(prefersReducedMotion ? 1 : 0, 1200);
   const entryX = (1 - entry) * (vw * (isMobile ? 0.45 : 0.65) + 200);
   const entryOpacity = Math.min(1, entry * 1.2);
@@ -700,16 +705,15 @@ export default function App() {
   const EARTH_ARC = Math.PI * (isMobile ? 1.2 : 1.6);
   const EARTH_SCALE_DELTA = isMobile ? 0.12 : 0.18;
 
-  const angle = (progress * EARTH_ARC) * motion;
+  const angle = progress * EARTH_ARC * motion;
   const orbitTx = Math.cos(angle) * (vw * EARTH_RX);
   const orbitTy = Math.sin(angle) * (vh * EARTH_RY);
-  const earthScale = 1 + (EARTH_SCALE_DELTA * progress * motion);
+  const earthScale = 1 + EARTH_SCALE_DELTA * progress * motion;
 
-  // Moon
   const MOON_PUSH_DOWN = isMobile ? "95%" : "58%";
   const moonOpacity = 1 - progress;
   const moonFadeOpacity = progress * 0.9;
-  
+
   const EARTH_PUSH_RIGHT = isMobile ? vw * 0.28 : 0;
 
   return (
@@ -720,7 +724,6 @@ export default function App() {
       <TopCenterMenu />
 
       <section id="top" className="h-[100svh] overflow-x-hidden overflow-y-visible">
-        {/* EARTH */}
         <img
           aria-hidden
           src="/images/earth.svg"
@@ -730,27 +733,27 @@ export default function App() {
             transform: `translate(-50%, -50%) translate(${entryX + orbitTx + EARTH_PUSH_RIGHT}px, ${orbitTy}px) scale(${earthScale})`,
             opacity: entryOpacity,
             willChange: "transform, opacity",
-            height: 'clamp(180px, 36vh, 520px)',
+            height: "clamp(180px, 36vh, 520px)",
             width: "auto",
             filter: "drop-shadow(0 0 24px rgba(88,180,255,.35))",
           }}
         />
 
-        {/* MOON */}
         <img
-        ref={moonRef}
-        src="/images/moon.webp"
-        alt="Moon surface"
-        className="absolute bottom-0 left-1/2 select-none"
-        style={{
-          transform: `translate(-50%, ${MOON_PUSH_DOWN})`,
-          width: "clamp(560px, 90vw, 1200px)",          // ou: width: 'clamp(560px, 90vw, 1200px)'
-          height: "auto",
-          opacity: moonOpacity,
-          filter: "brightness(0.95) contrast(1.05)",
-          willChange: "opacity",
-        }}
-      />
+          ref={moonRef}
+          src="/images/moon.webp"
+          alt="Moon surface"
+          className="absolute bottom-0 left-1/2 select-none"
+          style={{
+            transform: `translate(-50%, ${MOON_PUSH_DOWN})`,
+            width: "clamp(560px, 90vw, 1200px)",
+            height: "auto",
+            opacity: moonOpacity,
+            filter: "brightness(0.95) contrast(1.05)",
+            willChange: "opacity",
+          }}
+        />
+
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -762,20 +765,41 @@ export default function App() {
             willChange: "opacity",
           }}
         />
-
       </section>
 
-      <section id="mission" className="px-4 sm:px-6 py-20 sm:py-24 md:py-32 bg-gradient-to-b from-black to-[#060a12] relative">
+      <section
+        id="mission"
+        className="px-4 sm:px-6 py-20 sm:py-24 md:py-32 bg-gradient-to-b from-black to-[#060a12] relative"
+      >
         {/* content later */}
       </section>
+
       <PromoVideo moonRef={moonRef} />
-      {/* give some extra scroll room so you can actually reach the sentinel */}
-<div aria-hidden className="h-[320px]" />
+      <MiniAgenda />
 
-{/* the sentinel that triggers the footer slide-up */}
+      <section className="w-full" style={{ fontFamily: "Gliker, system-ui, sans-serif", color: "white" }}>
+        <div className="container">
+          <div
+            style={{
+              marginTop: 14,
+              padding: "14px 16px",
+              borderRadius: 16,
+              border: "1px solid rgba(255,255,255,.14)",
+              background: "rgba(255,255,255,.03)",
+              backdropFilter: "blur(8px)",
+              lineHeight: 1.5,
+            }}
+          >
+            <p style={{ margin: 0, fontSize: "clamp(14px, 1.2vw, 16px)", opacity: 0.92 }}>
+              <strong>BULUKU</strong>, um espetáculo criado e interpretado por <strong>Djam Neguin</strong>. Produção{" "}
+              <strong>ACCCA — Companhia Clara Andermatt</strong>.
+            </p>
+          </div>
+        </div>
+      </section>
 
-{/* footer that slides up when the sentinel hits the viewport */}
-
+      {/* <FeatureCards /> */}
+      {/* <div aria-hidden className="h-[320px]" /> */}
     </div>
   );
 }

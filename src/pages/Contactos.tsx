@@ -53,14 +53,7 @@ export default function Contactos() {
       <div className="fx fx-grid" aria-hidden />
       <div className="fx-aurora" aria-hidden />
 
-      <MenuTopBar
-        items={[
-          { label: "Sobre", href: "/sobre" },
-          { label: "Shows", href: "/shows" },
-          { label: "Galeria & Press", href: "/galeria" },
-          { label: "Contactos", href: "/contactos" },
-        ]}
-      />
+      <MenuTopBar />
 
       <section className="contact-wrap">
         <div className="contact-card">

@@ -1,1 +1,108 @@
-{ "events": [] }
+{
+  "events": [
+    {
+      "title": "Try Out",
+      "type": "Try Out",
+      "date": "2026-02-13",
+      "time": "10h30",
+      "city": "Praia, Cabo Verde",
+      "venue": "Centro Cultural Português na Praia",
+      "address": "",
+      "ticketUrl": "",
+      "status": "NORMAL",
+      "featured": false,
+      "order": 1
+    },
+    {
+      "title": "Try Out",
+      "type": "Try Out",
+      "date": "2026-03-06",
+      "time": "19h00",
+      "city": "Lisboa",
+      "venue": "Estúdio ACCCA",
+      "address": "",
+      "ticketUrl": "",
+      "status": "NORMAL",
+      "featured": false,
+      "order": 2
+    },
+    {
+      "title": "Espetáculo | Estreia",
+      "type": "Espetáculo",
+      "date": "2026-03-21",
+      "time": "16h00",
+      "city": "Lisboa",
+      "venue": "Teatro do Bairro",
+      "address": "R. Luz Soriano, 63 1200-246 Lisboa",
+      "ticketUrl": "",
+      "status": "EM_BREVE",
+      "featured": true,
+      "order": 3
+    },
+    {
+      "title": "Espetáculo | Estreia (2ª sessão)",
+      "type": "Espetáculo",
+      "date": "2026-03-22",
+      "time": "16h00",
+      "city": "Lisboa",
+      "venue": "Teatro do Bairro",
+      "address": "R. Luz Soriano, 63 1200-246 Lisboa",
+      "ticketUrl": "",
+      "status": "EM_BREVE",
+      "featured": true,
+      "order": 4
+    },
+    {
+      "title": "Espetáculo",
+      "type": "Espetáculo",
+      "date": "2026-03-28",
+      "time": "16h00",
+      "city": "Águeda",
+      "venue": "Local a definir",
+      "address": "",
+      "ticketUrl": "",
+      "status": "EM_BREVE",
+      "featured": false,
+      "order": 5
+    },
+    {
+      "title": "Espetáculo (Escolas)",
+      "type": "Espetáculo",
+      "date": "2026-06-05",
+      "time": "10h30 e 14h30",
+      "city": "Braga",
+      "venue": "Theatro Circo",
+      "address": "Av. da Liberdade 697, 4710-251 Braga",
+      "ticketUrl": "",
+      "status": "ESCOLAS",
+      "featured": false,
+      "order": 6
+    },
+    {
+      "title": "Espetáculo (Público)",
+      "type": "Espetáculo",
+      "date": "2026-06-06",
+      "time": "11h30",
+      "city": "Braga",
+      "venue": "Theatro Circo",
+      "address": "Av. da Liberdade 697, 4710-251 Braga",
+      "ticketUrl": "",
+      "status": "EM_BREVE",
+      "featured": false,
+      "order": 7
+    },
+    {
+      "title": "Oficina — O Meu Eu Astronauta e o Metaverso",
+      "type": "Oficina",
+      "date": "2026-06-06",
+      "time": "15h00",
+      "city": "Braga",
+      "venue": "Theatro Circo",
+      "address": "Av. da Liberdade 697, 4710-251 Braga",
+      "ticketUrl": "",
+      "status": "EM_BREVE",
+      "featured": false,
+      "order": 8
+    }
+  ]
+}
