@@ -240,7 +240,7 @@ export default function ShowsPage() {
 
             <div className="notes">
               <p>
-    <strong>Apoios:</strong> REPÚBLICA PORTUGUESA – CULTURA, JUVENTUDE E DESPORTO / DIREÇÃO-GERAL DAS ARTES; PROGRAMA CAIXA CULTURA, DA CAIXA GERAL DE DEPÓSITOS; CÂMARA MUNICIPAL DE LISBOA; INTERPRESS - HUB CRIATIVO DO BAIRRO ALTO; TEATRO DO BAIRRO; ESTUFA - Plataforma Cultural
+    <strong>Apoios:</strong> REPÚBLICA PORTUGUESA – CULTURA, JUVENTUDE E DESPORTO / DIREÇÃO-GERAL DAS ARTES; PROGRAMA CAIXA CULTURA, DA CAIXA GERAL DE DEPÓSITOS; INTERPRESS - HUB CRIATIVO DO BAIRRO ALTO; TEATRO DO BAIRRO; ESTUFA - Plataforma Cultural
   </p>
               <p><strong>Rider Técnico:</strong> mais informações em breve.</p>
                <p><strong>SOBRE A PARCERIA:</strong> Reconhecendo em Djam Neguin uma voz artística singular, 

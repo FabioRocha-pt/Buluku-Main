@@ -4,7 +4,7 @@ import StarsField from "../components/StarsField";
 import "../styles/gallery.css";
 
 /* ========= Types ========= */
-type Kind = "Buluku" | "Try-out PT" | "Try-out CV";
+type Kind = "Buluku" | "Try-out CV" | "Try-out PT" ;
 
 type Photo = {
   id: string;
@@ -61,11 +61,11 @@ function ImgWithFallback({
 }
 const PHOTOS: Photo[] = [
   ...makeSet("Buluku", "Buluku"),
-  ...makeSet("Try-out PT", "Try-out-PT"),
   ...makeSet("Try-out CV", "Try-out-CV"),
+  ...makeSet("Try-out PT", "Try-out-PT"),
 ];
 
-const KINDS = ["Todos", "Buluku", "Try-out PT", "Try-out CV"] as const;
+const KINDS = ["Todos", "Buluku", "Try-out CV", "Try-out PT"] as const;
 type Cat = (typeof KINDS)[number];
 
 export default function Galeria() {
@@ -135,7 +135,7 @@ export default function Galeria() {
           <div className="g-kicker">Buluku — Galeria</div>
           <h1 className="g-title">Galeria & Press</h1>
           <p className="g-subtitle">
-            Conteúdos organizados por <strong>Buluku</strong>, <strong>Try-out PT</strong> e <strong>Try-out CV</strong>.
+            Conteúdos organizados por <strong>Buluku</strong>, <strong>Try-out CV</strong> e <strong>Try-out PT</strong>.
           </p>
         </div>
       </header>

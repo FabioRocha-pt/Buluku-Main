@@ -38,6 +38,8 @@ function RootLayout() {
     items: [
       { src: "/images/logos/cxc.png",            alt: "Caixa Cultura" },
       { src: "/images/logos/interpress_rgb-25_branco.png", alt: "Interpress — Hub Criativo do Bairro Alto" },
+      { src: "/images/logos/teatro-bairro.png",            alt: "Teatro Bairro" },
+      { src: "/images/logos/estufa.png",            alt: "Estufa" },
     ],
   },
   {
