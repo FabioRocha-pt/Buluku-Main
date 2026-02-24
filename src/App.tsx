@@ -262,7 +262,40 @@ function LogoMorph({
   const xSeat = vw / 2 - SIZE_START / 2;
 
   const [moonTop, setMoonTop] = useState<number | null>(null);
+  useEffect(() => {
+    const el = moonRef.current;
+    if (!el) return;
 
+    let raf = 0;
+
+    const measure = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        setMoonTop(r.top);
+      });
+    };
+
+    // mede ao montar + após 1 frame
+    measure();
+
+    // mede quando a imagem realmente carrega (resolve o “primeiro load”)
+    if (!el.complete) {
+      el.addEventListener("load", measure, { once: true });
+    }
+
+    window.addEventListener("resize", measure);
+    // (scroll aqui é opcional; a lua está absolute -> o top muda com scroll,
+    // mas a tua lógica já assume viewport coords)
+    window.addEventListener("scroll", measure, { passive: true } as any);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("load", measure as any);
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure as any);
+    };
+  }, [moonRef]);
   useEffect(() => {
     const update = () => {
       const el = moonRef.current;
