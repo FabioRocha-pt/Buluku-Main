@@ -58,11 +58,11 @@
       "date": "2026-03-28",
       "time": "16h00",
       "city": "Águeda",
-      "venue": "Local a definir",
+      "venue": "Festival Kontornu",
       "address": "",
       "ticketUrl": "",
       "status": "EM_BREVE",
-      "featured": false,
+      "featured": true,
       "order": 5
     },
     {

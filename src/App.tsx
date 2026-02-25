@@ -643,7 +643,7 @@ function MiniAgenda() {
     { date: "13 Fev", time: "10h30", city: "Praia (CV)", title: "Try Out", status: "Encerrado" },
     { date: "6 Mar", time: "19h00", city: "Lisboa", title: "Try Out", status: "Encerrado" },
     { date: "21–22 Mar", time: "16h00", city: "Lisboa", title: "Estreia — Teatro do Bairro", status: "Em breve" },
-    { date: "28 Mar", time: "16h00", city: "Águeda", title: "Espetáculo", status: "Em breve" },
+    { date: "28 Mar", time: "16h00", city: "Águeda", title: "Espetáculo — Festival Kontornu", status: "Em breve" },
     { date: "5 Jun", time: "10h30 & 14h30", city: "Braga", title: "Theatro Circo (Escolas)", status: "Escolas" },
     { date: "6 Jun", time: "11h30", city: "Braga", title: "Theatro Circo (Público)", status: "Em breve" },
     { date: "6 Jun", time: "15h00", city: "Braga", title: "Oficina", status: "Em breve" },
