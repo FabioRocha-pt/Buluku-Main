@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-
 function StarsSVGFixed({ scrollY }: { scrollY: number }) {
   const { w, h } = useWindowSize();
   const area = Math.max(1, w * h);
@@ -326,7 +325,7 @@ function LogoMorph({
     <>
       {!hideBig && (
         <a
-          href="/"
+          href="/sobre"
           aria-label="Buluku — voltar à Home"
           className="fixed z-[420] select-none"
           style={{
