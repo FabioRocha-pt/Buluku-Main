@@ -155,3 +155,22 @@
 .techlist li:last-child{ border-bottom:none; }
 .techlist li span{ opacity:.9; margin-right:8px; }
 .notes p{ margin:8px 0 0; opacity:.9; }
+
+.shows-wrap {
+  width: min(1280px, 94vw);
+  margin: 0 auto;
+}
+
+.shows-grid {
+  display: block;
+}
+
+.shows-card--agenda {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+.shows-card--agenda .timeline {
+  max-width: 100%;
+}

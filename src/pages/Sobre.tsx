@@ -6,7 +6,7 @@ import "../styles/sobre.css";
 /* ========= Types ========= */
 type RowProps = {
   title: string;
-  text: string;
+  text: string[];
 };
 
 type PlanetId = "p1" | "p2" | "p3";
@@ -242,7 +242,13 @@ function SobreUniverse({ rows }: { rows: RowProps[] }) {
           <aside className="detailText">
             <div className="detailTopic">{selected.label}</div>
             <h2 className="detailH">{detail.title}</h2>
-            <p className="detailP">{detail.text}</p>
+            <div className="detailCopy">
+              {detail.text.map((paragraph, idx) => (
+                <p key={idx} className="detailP">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </aside>
         </div>
       )}
@@ -253,22 +259,48 @@ function SobreUniverse({ rows }: { rows: RowProps[] }) {
 /* ========= Page ========= */
 export default function Sobre() {
   const rows: RowProps[] = [
-    {
-      title: "Sobre o Espetáculo",
-      text:
-        "Partindo de pesquisas aprofundadas sobre estórias africanas de criação do mundo e recorrendo a softwares de inteligência artificial e realidade virtual como ferramentas criativas, Djam Neguin concebe um espetáculo multimédia que articula performance ao vivo com conteúdos audiovisuais projetados (vídeo mapping). O resultado é uma experiência poética e sensorial que convoca diferentes linguagens artísticas, criando um ambiente imersivo, envolvente e acessível ao público infantil e familiar. O projeto desdobra-se em atividades paralelas que ampliam a sua dimensão transdisciplinar, como a Roda de Conversa pós-espetáculo e a oficina “O Meu Eu Astronauta e o Metaverso”, direcionada para a criação de personagens.",
-    },
-    {
-      title: "A ideia por detrás do Projeto",
-      text:
-        "“Buluku – o Afronauta” nasce para ampliar o imaginário infantil com referências plurais. Em vez do olhar único eurocêntrico, propõe futuros diversos onde todas as crianças se podem ver como protagonistas. A narrativa junta ecologia e diversidade cultural: o futuro só acontece em diálogo com a natureza e com respeito às diferenças. O projeto é transmidiático — espetáculo ao vivo, animação, narrativas digitais e conteúdos interativos — para que Buluku acompanhe as crianças no dia a dia como parceiro de brincadeira, inspiração e aprendizagem.",
-    },
-    {
-      title: "Bio de Djam",
-      text:
-        "Artista multidisciplinar da nova geração de criativos contemporâneos cabo-verdianos, expressando-se através da dança, do teatro, do cinema e da música, cruzando várias formas de criação. Desde 2020, tem se dedicado à exploração de estéticas afro futurísticas queer e agendas descoloniais e antirracistas. Nascido em Cabo Verde, viveu dos 9 aos 19 anos em Braga, onde desenvolveu vários projetos artísticos. Em 2011 ingressou na ESTC - Curso de Teatro, ramo Atores.",
-    },
-  ];
+  {
+  title: "Sobre o Espetáculo",
+  text: [
+    "Buluku é um espetáculo cheio de aventuras. Viajamos pelo espaço com um afronauta curioso e brincalhão, que cria planetas, inventa danças e faz grandes perguntas, como: “de onde vem o mundo?”",
+    "No palco há brinquedos, imagens em movimento, luzes, sons e um corpo que brinca o tempo todo. Tudo se junta para criar mundos inspirados em antigas estórias de África sobre a origem do mundo.",
+    "Em Buluku, não há respostas certas. Há imaginação, movimento e descoberta. Um espetáculo para crianças e adultos verem, sentirem e brincarmos juntos.",
+    "Concepção e Interpretação: DJAM NEGUIN",
+    "Composição Musical e Sonoplastia: ELIAS GOMES e NDU CARLOS",
+    "Composição Audiovisual e Operação: FÁBIO ROCHA",
+    "Desenho de Luz e Direção Técnica: PÉRICLES SILVA",
+    "Espaço Cénico e Adereços: KENNART",
+    "Customização Figurinos: GHISLENE ALVES",
+    "Consultoria Artística: CLARA ANDERMATT",
+    "Edição Audiovisual e Grafismos: MMSTUDIO",
+    "Operação de Luz e Acompanhamento Técnico: MANUEL ABRANTES",
+    "Produção: COMPANHIA CLARA ANDERMATT (MIGUEL PEREIRA, RUANA CAROLINA)",
+    "Parceiros de Comunicação: ANTENA 2; COFFEEPASTE",
+    "Classificação Etária: M/6",
+    "Duração: 35 MINUTOS (aprox.)",
+    "Apoios: REPÚBLICA PORTUGUESA – CULTURA, JUVENTUDE E DESPORTO / DIREÇÃO-GERAL DAS ARTES; PROGRAMA CAIXA CULTURA, DA CAIXA GERAL DE DEPÓSITOS; INTERPRESS - HUB CRIATIVO DO BAIRRO ALTO; TEATRO DO BAIRRO; ESTUFA - Plataforma Cultural.",
+    "Rider Técnico: mais informações em breve.",
+    "Sobre a parceria: Reconhecendo em Djam Neguin uma voz artística singular, enraizada nas tradições africanas e voltada para a contemporaneidade, a Companhia Clara Andermatt produz a sua nova criação BULUKU, desenvolvida em estreita colaboração com o artista. O projeto reflete a missão da Companhia de promover diversidade, diálogo e pensamento crítico, dando continuidade à sua relação com Cabo Verde desde 1994 e assinalando a sua primeira produção dirigida ao público infantil e familiar."
+  ],
+},
+  {
+    title: "A ideia por detrás do Projeto",
+    text: [
+      "O projeto parte da constatação de que os imaginários coletivos sobre a origem e o futuro do mundo foram historicamente moldados por perspectivas ocidentais e eurocêntricas, ainda hoje reproduzidas nos media e nas linguagens tecnológicas. Mesmo no universo digital e futurista, predominam representações homogéneas que limitam a diversidade simbólica e identitária.",
+      "Buluku propõe reconfigurar esse espaço simbólico partindo de mitologias africanas de criação do mundo, apropriando-se da tecnologia e assumindo-a como território democrático de transformação, abrindo assim o imaginário contemporâneo à pluralidade de cosmovisões.",
+      "A escolha de um nome de origem africana responde a uma necessidade ética e estética de coerência com o projeto. Nas cosmologias do povo Fon, da antiga região do Daomé (atual Benim), Buluku designa o princípio criador primordial: uma força que dá origem ao universo e que, após a criação, se retira, permitindo que a existência se desenvolva autonomamente.",
+      "Esta ideia de criação não intervencionista sustenta o enquadramento filosófico do projeto, entendendo a criação como impulso gerador de possibilidades - em Buluku, não há respostas certas. Há imaginação, movimento e descoberta."
+    ],
+  },
+  {
+    title: "Bio de Djam",
+    text: [
+      "Artista multidisciplinar da nova geração de criativos contemporâneos cabo-verdianos, expressando-se através da dança, do teatro, do cinema e da música, cruzando várias formas de criação.",
+      "Desde 2020, tem se dedicado à exploração de estéticas afro futurísticas queer e agendas descoloniais e antirracistas.",
+      "Nascido em Cabo Verde, viveu dos 9 aos 19 anos em Braga, onde desenvolveu vários projetos artísticos. Em 2011 ingressou na ESTC - Curso de Teatro, ramo Atores."
+    ],
+  },
+];
 
   return (
     <main className="w-screen min-h-screen bg-black text-white overflow-x-hidden" style={{ fontFamily: "Gliker, system-ui, sans-serif" }}>

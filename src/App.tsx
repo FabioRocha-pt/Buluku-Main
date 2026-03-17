@@ -480,18 +480,36 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
   const { w } = useWindowSize();
   const isMobile = w < 640;
 
-  const src = isMobile ? "/videos/promomobile.mp4" : "/videos/promo.mp4";
+  const mp4Src = isMobile ? "/videos/promomobile.mp4" : "/videos/promo.mp4";
+  const webmSrc = isMobile ? "/videos/promomobile.webm" : "/videos/promo.webm"; // opcional
+  const posterSrc = isMobile ? "/images/promo-poster-mobile.jpg" : "/images/promo-poster.jpg";
   const ratio = isMobile ? "9 / 16" : "16 / 9";
 
   const [show, setShow] = useState(false);
-
-  // 🔊 áudio (começa muted, botão desmuta)
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [muted, setMuted] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const tryPlay = async () => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    try {
+      v.muted = true; // autoplay mais seguro
+      await v.play();
+      setHasError(false);
+    } catch (err) {
+      console.error("Video autoplay failed:", err);
+      setHasError(true);
+    }
+  };
 
   const toggleAudio = async () => {
     const v = videoRef.current;
     if (!v) return;
+
     try {
       if (v.muted) {
         v.muted = false;
@@ -501,20 +519,18 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
         v.muted = true;
       }
       setMuted(v.muted);
-    } catch {
-      // iOS pode bloquear; mantém muted
+    } catch (err) {
+      console.error("Audio toggle failed:", err);
       v.muted = true;
       setMuted(true);
     }
   };
 
-  // ✅ Fade-in quando o "centro da lua" entra no viewport
   useEffect(() => {
     const moonEl = moonRef.current;
     if (!moonEl) return;
 
     const sentinel = document.createElement("div");
-    sentinel.setAttribute("data-moon-sentinel", "1");
     sentinel.style.position = "absolute";
     sentinel.style.width = "1px";
     sentinel.style.height = "1px";
@@ -534,15 +550,18 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
 
     placeSentinel();
     window.addEventListener("resize", placeSentinel);
-    window.addEventListener("scroll", placeSentinel, { passive: true } as any);
+    window.addEventListener("scroll", placeSentinel, { passive: true });
 
     const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setShow(true);
+      async ([entry]) => {
+        if (entry.isIntersecting) {
+          setShow(true);
+          await tryPlay();
+        }
       },
       {
         threshold: 0.15,
-        rootMargin: "-40% 0px -40% 0px",
+        rootMargin: "-20% 0px -20% 0px",
       }
     );
 
@@ -551,10 +570,29 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
     return () => {
       obs.disconnect();
       window.removeEventListener("resize", placeSentinel);
-      window.removeEventListener("scroll", placeSentinel as any);
+      window.removeEventListener("scroll", placeSentinel);
       sentinel.remove();
     };
-  }, [moonRef]);
+  }, [moonRef, mp4Src]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    const onLoadedData = () => setIsReady(true);
+    const onError = () => {
+      console.error("Video failed to load", v.error);
+      setHasError(true);
+    };
+
+    v.addEventListener("loadeddata", onLoadedData);
+    v.addEventListener("error", onError);
+
+    return () => {
+      v.removeEventListener("loadeddata", onLoadedData);
+      v.removeEventListener("error", onError);
+    };
+  }, [mp4Src]);
 
   return (
     <section
@@ -583,7 +621,6 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
             position: "relative",
           }}
         >
-          {/* botão som */}
           <button
             type="button"
             onClick={toggleAudio}
@@ -614,21 +651,58 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
           <div style={{ position: "relative", width: "100%", aspectRatio: ratio }}>
             <video
               ref={videoRef}
-              key={src}
-              src={src}
+              key={mp4Src}
               autoPlay
-              muted={muted}
+              muted
               playsInline
               loop
-              preload="auto"
+              preload="metadata"
+              poster={posterSrc}
               controls={false}
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
                 display: "block",
+                background: "#111",
               }}
-            />
+            >
+              <source src={webmSrc} type="video/webm" />
+              <source src={mp4Src} type="video/mp4" />
+              O teu browser não suporta vídeo HTML5.
+            </video>
+
+            {!isReady && !hasError && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "grid",
+                  placeItems: "center",
+                  background: "rgba(20,20,20,0.45)",
+                  fontSize: 14,
+                }}
+              >
+                A carregar vídeo...
+              </div>
+            )}
+
+            {hasError && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "grid",
+                  placeItems: "center",
+                  background: "rgba(20,20,20,0.65)",
+                  textAlign: "center",
+                  padding: 20,
+                  fontSize: 14,
+                }}
+              >
+                Não foi possível reproduzir este vídeo neste dispositivo.
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -638,15 +712,22 @@ function PromoVideo({ moonRef }: { moonRef: React.RefObject<HTMLImageElement | n
 
 
 function MiniAgenda() {
-  const items = [
-    { date: "13 Fev", time: "10h30", city: "Praia (CV)", title: "Try Out", status: "Encerrado" },
-    { date: "6 Mar", time: "19h00", city: "Lisboa", title: "Try Out", status: "Encerrado" },
-    { date: "21–22 Mar", time: "16h00", city: "Lisboa", title: "Estreia — Teatro do Bairro", status: "Em breve" },
-    { date: "28 Mar", time: "16h00", city: "Águeda", title: "Espetáculo — Festival Kontornu", status: "Em breve" },
-    { date: "5 Jun", time: "10h30 & 14h30", city: "Braga", title: "Theatro Circo (Escolas)", status: "Escolas" },
-    { date: "6 Jun", time: "11h30", city: "Braga", title: "Theatro Circo (Público)", status: "Em breve" },
-    { date: "6 Jun", time: "15h00", city: "Braga", title: "Oficina", status: "Em breve" },
-  ];
+    const items = [
+  { date: "27 Out", time: "19h00", city: "Lisboa", title: "1º Try Out — Estúdio ACCCA", status: "Encerrado" },
+  { date: "13 Fev", time: "10h30", city: "Praia (CV)", title: "Try Out", status: "Encerrado" },
+  {
+    date: "21–22 Mar",
+    time: "16h00",
+    city: "Lisboa",
+    title: "Estreia — Teatro do Bairro",
+    status: "Bilhetes",
+    ticketUrl: "https://www.bol.pt/Comprar/Bilhetes/172871-buluku-teatro_do_bairro/",
+  },
+  { date: "27 Mar", time: "10h00", city: "Águeda", title: "Espetáculo — Centro de Artes de Águeda", status: "Em breve" },
+  { date: "5 Jun", time: "10h30 & 14h30", city: "Braga", title: "Theatro Circo (Escolas)", status: "Escolas" },
+  { date: "6 Jun", time: "11h30", city: "Braga", title: "Theatro Circo (Público)", status: "Em breve" },
+  { date: "6 Jun", time: "15h00", city: "Braga", title: "Oficina", status: "Em breve" },
+];
 
   return (
     <section
@@ -688,7 +769,20 @@ function MiniAgenda() {
               </div>
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                <div style={{ fontWeight: 650 }}>{it.title}</div>
+                <div style={{ fontWeight: 650 }}>
+                  {"ticketUrl" in it && it.ticketUrl ? (
+                    <a
+                      href={it.ticketUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ color: "white", textDecoration: "underline" }}
+                    >
+                      {it.title}
+                    </a>
+                  ) : (
+                    it.title
+                  )}
+                </div>
                 {it.status ? (
                   <span
                     style={{

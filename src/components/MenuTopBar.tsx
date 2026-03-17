@@ -59,7 +59,7 @@ export default function MenuTopBar({ items, heightPx = 56 }: Props) {
           </nav>
 
           <div className="mtb-actions">
-            <button
+            {/* <button
               type="button"
               className="mtb-lang"
               onClick={toggleLang}
@@ -67,7 +67,7 @@ export default function MenuTopBar({ items, heightPx = 56 }: Props) {
               title={lang === "pt" ? "EN" : "PT"}
             >
               {lang === "pt" ? "EN" : "PT"}
-            </button>
+            </button> */}
 
             <button
               type="button"
